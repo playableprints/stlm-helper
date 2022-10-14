@@ -10,6 +10,11 @@ This repo builds a single executable that produces a UI to click buttons on.
 
 Use the Wails instructions to setup and configure Go and Nodejs: https://wails.io/docs/gettingstarted/installation
 
+To get started once this repo is checked out:
+
+- `cd frontend && npm install && npm build`
+- `cd .. && wails dev`
+
 ## About Wails
 
 You can configure the project by editing `wails.json`. More information about the project settings can be found here: https://wails.io/docs/reference/project-config
@@ -25,12 +30,14 @@ to this in your browser, and you can call your Go code from devtools.
 
 To build a redistributable, production mode package, use `wails build`.
 
+`build.sh` generates timestamped binaries (relies on having bash shell available). Wails doesn't currently crosscompile from Windows -> Linux or Windows -> MacOS.
+
 ## Technical resources
 
--   https://go.dev
--   https://nodejs.org/
--   https://reactjs.org
--   https://www.typescriptlang.org
+- https://go.dev
+- https://nodejs.org/
+- https://reactjs.org
+- https://www.typescriptlang.org
 
 ## License
 
