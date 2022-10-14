@@ -1,0 +1,15 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Wails: Debug stlm-helper",
+            "type": "go",
+            "request": "launch",
+            "mode": "exec",
+            "program": "${workspaceFolder}/build/bin/stlm-helper.exe",
+            "preLaunchTask": "build",
+            "cwd": "${workspaceFolder}",
+            "env": {}
+        }
+    ]
+}

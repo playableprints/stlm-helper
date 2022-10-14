@@ -1,0 +1,12 @@
+{
+  "name": "stlm-helper",
+  "outputfilename": "stlm-helper",
+  "frontend:install": "npm install",
+  "frontend:build": "npm run build",
+  "frontend:dev:watcher": "npm run dev",
+  "frontend:dev:serverUrl": "auto",
+  "author": {
+    "name": "Rob Mayer",
+    "email": "5171361+RobMayer@users.noreply.github.com"
+  }
+}
