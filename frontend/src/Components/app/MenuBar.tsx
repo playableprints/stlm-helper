@@ -81,12 +81,7 @@ const Menu = styled(({ children, ...props }: HTMLAttributes<HTMLDivElement>) => 
 `;
 
 const Link = styled(({ className, ...props }: LinkProps) => {
-    return (
-        <NavLink
-            {...props}
-            className={({ isActive }) => `${isActive ? "current" : ""} ${className}`}
-        />
-    );
+    return <NavLink {...props} className={({ isActive }) => `${isActive ? "current" : ""} ${className}`} />;
 })`
     color: #ccc;
     text-decoration: none;

@@ -1,6 +1,6 @@
-import styled, { css } from "styled-components";
+import styled from "styled-components";
 import FilesToFolders from "./Tooling/ExplodeFilesToFolders";
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { Route, Routes } from "react-router-dom";
 import MenuBar from "./Components/app/MenuBar";
 import "@fortawesome/fontawesome-svg-core/styles.css";
 import Landing from "./Components/app/Landing";
