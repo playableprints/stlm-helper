@@ -5,6 +5,7 @@ import (
 	"io/fs"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 )
 
@@ -13,6 +14,55 @@ type Exploder struct{}
 type status struct {
 	Success bool
 	Message string
+}
+
+func (e *Exploder) ExplodeList(path string, fileList []string, test string, replace string) map[string]status {
+	retval := make(map[string]status)
+	result := e.Prepare(fileList, test, replace)
+
+	for k, flist := range result {
+		dir := filepath.Join(path, k)
+		if err := os.Mkdir(dir, 0x777); err != nil {
+			fmt.Printf("error creating folder %v", k)
+		}
+		for _, fname := range flist {
+			retval[fname] = status{true, ""}
+			if err := os.Rename(filepath.Join(path, fname), filepath.Join(dir, fname)); err != nil {
+				retval[fname] = status{false, err.Error()}
+			}
+		}
+	}
+
+	return retval
+}
+
+func (e *Exploder) Prepare(fileList []string, test string, replace string) map[string][]string {
+	result := make(map[string][]string)
+
+	r, err := regexp.Compile(test)
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+	counterRegex, err := regexp.Compile("{(i+)}")
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+
+	for i, f := range fileList {
+		basename := strings.TrimSuffix(f, filepath.Ext(f))
+		counterLen := len(counterRegex.FindString(replace))
+		replaceToken := replace
+		if counterLen > 0 {
+			replaceToken = counterRegex.ReplaceAllString(replace, fmt.Sprintf("%0*d", counterLen-2, i+1))
+		}
+		dir := r.ReplaceAllString(basename, replaceToken)
+		if _, ok := result[dir]; !ok {
+			result[dir] = []string{}
+		}
+		result[dir] = append(result[dir], f)
+	}
+
+	return result
 }
 
 func (e *Exploder) Explode(path string) map[string]status {
