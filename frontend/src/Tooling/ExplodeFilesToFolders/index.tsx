@@ -19,6 +19,7 @@ import useNotifications from "../../Utility/notifications";
 import Nav from "../../Components/buttons/Nav";
 import { BrowserOpenURL } from "../../../wailsjs/runtime/runtime";
 import SlimButton from "../../Components/buttons/SlimButton";
+import useLoadingBar from "../../Utility/loadingbar";
 
 const toTree = (h: { [key: string]: string[] }) => {
   return Object.entries(h).map(([folder, files]) => {
@@ -52,14 +53,21 @@ const FilesToFolders = () => {
   }, []);
 
   const logger = useLogger("ExplodeFiles");
-
   const notifications = useNotifications();
+  const loadingBar = useLoadingBar();
 
   useEffect(() => {
     if (selected.length > 0) {
-      Prepare(selected, matcher === "" ? ".*" : matcher, replace === "" ? "$0" : replace).then((h) => {
-        setHierarchy(toTree(h));
-      });
+      loadingBar.show();
+      Prepare(selected, matcher === "" ? ".*" : matcher, replace === "" ? "$0" : replace)
+        .then((h) => {
+          setHierarchy(toTree(h));
+          loadingBar.hide();
+        })
+        .catch(() => {
+          setHierarchy([]);
+          loadingBar.hide();
+        });
     } else {
       setHierarchy([]);
     }
@@ -76,10 +84,17 @@ const FilesToFolders = () => {
             onPick={(v: string) => {
               setPath(v);
               if (v) {
-                GetContents(v, "*.*", false).then((l) => {
-                  setFileList(l);
-                  setSelected(l);
-                });
+                loadingBar.show();
+                GetContents(v, "*.*", false)
+                  .then((l) => {
+                    setFileList(l);
+                    setSelected(l);
+                    loadingBar.hide();
+                  })
+                  .catch(() => {
+                    reset();
+                    loadingBar.hide();
+                  });
               }
             }}
             onClear={reset}
@@ -135,8 +150,10 @@ const FilesToFolders = () => {
           className={"confirm"}
           onClick={() => {
             const thePath = path;
-            ExplodeList(path, selected, matcher === "" ? ".*" : matcher, replace === "" ? "$0" : replace).then(
-              (res) => {
+            loadingBar.show();
+            ExplodeList(path, selected, matcher === "" ? ".*" : matcher, replace === "" ? "$0" : replace)
+              .then((res) => {
+                loadingBar.hide();
                 let success = true;
                 Object.entries(res).forEach(([file, { Success, Message }]) => {
                   if (Success) {
@@ -169,8 +186,11 @@ const FilesToFolders = () => {
                   );
                 }
                 reset();
-              }
-            );
+              })
+              .catch(() => {
+                loadingBar.hide();
+                reset();
+              });
           }}
           disabled={selected.length <= 0 || path === ""}
         >

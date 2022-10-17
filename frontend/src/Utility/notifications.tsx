@@ -248,7 +248,7 @@ export type INoticeControls = {
 
 export const NotificationProvider = ({
   children,
-  defaultDuration = 5000,
+  defaultDuration = 4000,
 }: {
   children?: ReactNode;
   defaultDuration?: number;

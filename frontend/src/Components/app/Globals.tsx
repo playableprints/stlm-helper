@@ -1,5 +1,6 @@
 import { ReactNode, useEffect } from "react";
 import { HashRouter } from "react-router-dom";
+import { LoadingBarProvider } from "../../Utility/loadingbar";
 import { LoggerProvider } from "../../Utility/logger";
 import { NotificationProvider } from "../../Utility/notifications";
 
@@ -19,7 +20,9 @@ export default ({ children }: { children: ReactNode }) => {
   return (
     <LoggerProvider>
       <HashRouter>
-        <NotificationProvider>{children}</NotificationProvider>
+        <NotificationProvider>
+          <LoadingBarProvider>{children}</LoadingBarProvider>
+        </NotificationProvider>
       </HashRouter>
     </LoggerProvider>
   );
