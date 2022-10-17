@@ -9,9 +9,9 @@ const container = document.getElementById("app-root");
 const root = createRoot(container!);
 
 root.render(
-    <React.StrictMode>
-        <Globals>
-            <App />
-        </Globals>
-    </React.StrictMode>
+  <React.StrictMode>
+    <Globals>
+      <App />
+    </Globals>
+  </React.StrictMode>
 );
