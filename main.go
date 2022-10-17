@@ -7,6 +7,7 @@ import (
 	"github.com/wailsapp/wails/v2/pkg/options"
 
 	fe "stlmhelper/lib/folderexploder"
+	fsutil "stlmhelper/lib/fsutil"
 )
 
 //go:embed all:frontend/dist
@@ -17,10 +18,11 @@ func main() {
 	app := NewApp()
 
 	exploder := &fe.Exploder{}
+	fsutil := &fsutil.FSUtil{}
 
 	// Create application with options
 	err := wails.Run(&options.App{
-		Title:            "stlm-helper",
+		Title:            "Euler",
 		Width:            1024,
 		Height:           768,
 		Assets:           assets,
@@ -29,6 +31,7 @@ func main() {
 		Bind: []interface{}{
 			app,
 			exploder,
+			fsutil,
 		},
 	})
 

@@ -5,3 +5,11 @@
 export function Explode(arg1) {
   return window['go']['folderexploder']['Exploder']['Explode'](arg1);
 }
+
+export function ExplodeList(arg1, arg2, arg3, arg4) {
+  return window['go']['folderexploder']['Exploder']['ExplodeList'](arg1, arg2, arg3, arg4);
+}
+
+export function Prepare(arg1, arg2, arg3) {
+  return window['go']['folderexploder']['Exploder']['Prepare'](arg1, arg2, arg3);
+}
