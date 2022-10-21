@@ -33,11 +33,11 @@ export const useLogger = (prefix: string) => {
 
   const theRet = useMemo(() => {
     return {
-      warn: (...p: string[]) => warn(prefix, ...p),
-      error: (...p: string[]) => error(prefix, ...p),
-      info: (...p: string[]) => info(prefix, ...p),
-      success: (...p: string[]) => success(prefix, ...p),
-      log: (...p: string[]) => log(prefix, ...p),
+      warn: (...p: string[]) => warn(`[${prefix}]`, ...p),
+      error: (...p: string[]) => error(`[${prefix}]`, ...p),
+      info: (...p: string[]) => info(`[${prefix}]`, ...p),
+      success: (...p: string[]) => success(`[${prefix}]`, ...p),
+      log: (...p: string[]) => log(`[${prefix}]`, ...p),
     };
   }, [warn, error, info, success, log, prefix]);
 
@@ -157,6 +157,7 @@ const LogList = styled.div`
   flex-direction: column-reverse;
   justify-content: start;
   background: #111;
+  overflow: auto;
 `;
 
 const Title = styled.h2`

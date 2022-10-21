@@ -47,7 +47,7 @@ type IProps = {
   title?: ReactNode;
 } & Omit<HTMLAttributes<HTMLDivElement>, "title">;
 
-const ToolPanel = ({ title, options, children, ...props }: IProps) => {
+const Panel = ({ title, options, children, ...props }: IProps) => {
   return (
     <Wrapper {...props}>
       <Title>{title}</Title>
@@ -57,4 +57,4 @@ const ToolPanel = ({ title, options, children, ...props }: IProps) => {
   );
 };
 
-export default ToolPanel;
+export default Panel;

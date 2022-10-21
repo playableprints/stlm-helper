@@ -264,7 +264,6 @@ export const NotificationProvider = ({
         dispatch({ action: "remove", payload: id });
       },
       info: (message: ReactNode, title: string | null = null, duration: number = defaultDuration) => {
-        console.log("Here goes");
         const id = genId();
         if (duration > 0) {
           setTimeout(dispatch, duration, {

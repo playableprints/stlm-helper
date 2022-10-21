@@ -6,6 +6,7 @@ import "@fortawesome/fontawesome-svg-core/styles.css";
 import Landing from "./Components/app/Landing";
 import { LogView } from "./Utility/logger";
 import Docs from "./Docs";
+import TagReplacer from "./Tooling/TagReplacer";
 
 function App() {
   return (
@@ -14,6 +15,9 @@ function App() {
         <MenuBar.Link to="/tools/filestofolder" title="Create folders from files and move them into their folder">
           Explode Files to Folders
         </MenuBar.Link>
+        <MenuBar.Link to="/tools/tagreplacer" title="Replace tags across your library in bulk">
+          Bulk Tag Replacer
+        </MenuBar.Link>
       </MenuBar.Menu>
       <Content>
         <Routes>
@@ -21,6 +25,7 @@ function App() {
           <Route path={"/docs"} element={<Docs />} />
           <Route path={"/logs"} element={<LogView />} />
           <Route path={"/tools/filestofolder"} element={<FilesToFolders />} />
+          <Route path={"/tools/tagreplacer"} element={<TagReplacer />} />
         </Routes>
       </Content>
     </Wrapper>

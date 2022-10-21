@@ -5,12 +5,11 @@ import ToolTitle from "../../Components/layout/ToolTitle";
 import FolderPicker from "../../Components/selectors/FolderPicker";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowRight, faChevronRight } from "@fortawesome/free-solid-svg-icons";
-import ListSelector from "../../Components/selectors/ListSelector";
+import ListSelector, { Items } from "../../Components/selectors/ListSelector";
 import RegexInput from "../../Components/inputs/RegexInput";
 import RunButton from "../../Components/buttons/RunButton";
 import Label from "../../Components/layout/Label";
 import Input from "../../Components/inputs/Input";
-import Columns from "../../Components/layout/Columns";
 import ScrollPane from "../../Components/layout/ScrollPane";
 import FileTree, { IFileTree } from "../../Components/output/FileTree";
 import Panel from "../../Components/layout/Panel";
@@ -20,6 +19,9 @@ import Nav from "../../Components/buttons/Nav";
 import { BrowserOpenURL } from "../../../wailsjs/runtime/runtime";
 import SlimButton from "../../Components/buttons/SlimButton";
 import useLoadingBar from "../../Utility/loadingbar";
+import styled from "styled-components";
+import Button from "../../Components/buttons/Button";
+import useDebounceCallback from "../../Utility/usedebouncecallback";
 
 const toTree = (h: { [key: string]: string[] }) => {
   return Object.entries(h).map(([folder, files]) => {
@@ -39,7 +41,7 @@ const toTree = (h: { [key: string]: string[] }) => {
 
 const FilesToFolders = () => {
   const [path, setPath] = useState<string>("");
-  const [filelist, setFileList] = useState<string[]>([]);
+  const [filelist, setFileList] = useState<Items>({});
   const [selected, setSelected] = useState<string[]>([]);
   const [hierarchy, setHierarchy] = useState<IFileTree[]>([]);
   const [matcher, setMatcher] = useState<string>("");
@@ -47,30 +49,31 @@ const FilesToFolders = () => {
 
   const reset = useCallback(() => {
     setPath("");
-    setFileList([]);
+    setFileList({});
     setSelected([]);
     setHierarchy([]);
   }, []);
 
   const logger = useLogger("ExplodeFiles");
   const notifications = useNotifications();
-  const loadingBar = useLoadingBar();
+  const [loadingBar, isLoading] = useLoadingBar();
 
-  useEffect(() => {
-    if (selected.length > 0) {
-      loadingBar.show();
-      Prepare(selected, matcher === "" ? ".*" : matcher, replace === "" ? "$0" : replace)
+  const [preview] = useDebounceCallback((s: string[], m: string, r: string) => {
+    if (s.length > 0) {
+      Prepare(s, m === "" ? ".*" : m, r === "" ? "$0" : r)
         .then((h) => {
           setHierarchy(toTree(h));
-          loadingBar.hide();
         })
         .catch(() => {
           setHierarchy([]);
-          loadingBar.hide();
         });
     } else {
       setHierarchy([]);
     }
+  }, 200);
+
+  useEffect(() => {
+    preview(selected, matcher, replace);
   }, [selected, matcher, replace]);
 
   return (
@@ -80,14 +83,19 @@ const FilesToFolders = () => {
         <Label text={"Folder"} help={"Select a folder on your file system that contains the files you want to split."}>
           <FolderPicker
             value={path}
-            onCancel={reset}
+            disabled={isLoading}
             onPick={(v: string) => {
               setPath(v);
               if (v) {
                 loadingBar.show();
                 GetContents(v, "*.*", false)
                   .then((l) => {
-                    setFileList(l);
+                    setFileList(
+                      l.reduce((acc, e) => {
+                        acc[e] = e;
+                        return acc;
+                      }, {} as Items)
+                    );
                     setSelected(l);
                     loadingBar.hide();
                   })
@@ -100,30 +108,49 @@ const FilesToFolders = () => {
             onClear={reset}
           />
         </Label>
-        <Columns
-          value={"1fr auto 1fr"}
-          style={{
-            height: "50vh",
-          }}
-        >
-          <ListSelector
-            items={filelist}
-            disabled={path === ""}
-            selected={selected}
-            onPick={(value: string) => {
-              setSelected((prev) => {
-                return prev.includes(value) ? prev.filter((n) => n !== value) : [...prev, value];
-              });
-            }}
-            onPickAll={setSelected}
-            onPickNone={setSelected}
+        <SelectWrapper>
+          <SelectOptions style={{ gridArea: "opt1" }}>
+            <Button
+              disabled={path === "" || isLoading}
+              onClick={() => {
+                setSelected(Object.keys(filelist));
+              }}
+              title={"Select All"}
+            >
+              All
+            </Button>
+            <Button
+              disabled={path === "" || isLoading}
+              onClick={() => {
+                setSelected([]);
+              }}
+              title={"Select None"}
+            >
+              None
+            </Button>
+          </SelectOptions>
+          <ScrollPane style={{ gridArea: "input1" }}>
+            <ListSelector
+              items={filelist}
+              disabled={path === "" || isLoading}
+              selected={selected}
+              onPick={(value: string) => {
+                setSelected((prev) => {
+                  return prev.includes(value) ? prev.filter((n) => n !== value) : [...prev, value];
+                });
+              }}
+            />
+          </ScrollPane>
+          <FontAwesomeIcon
+            icon={faChevronRight}
+            className={"fa-fw"}
+            style={{ alignSelf: "center", gridArea: "arrow" }}
           />
-          <FontAwesomeIcon icon={faChevronRight} className={"fa-fw"} style={{ alignSelf: "center" }} />
-          <ScrollPane>
+          <ScrollPane style={{ gridArea: "input2" }}>
             <FileTree tree={hierarchy} />
           </ScrollPane>
-        </Columns>
-        <Columns value={"1fr auto 1fr"}>
+        </SelectWrapper>
+        <InputWrapper>
           <Label text="Regex Matching" help={"RegExp to group filenames"}>
             <RegexInput
               value={matcher}
@@ -132,6 +159,7 @@ const FilesToFolders = () => {
               }}
               placeholder={".*"}
               onClear={() => setMatcher("")}
+              disabled={isLoading}
             />
           </Label>
           <FontAwesomeIcon icon={faArrowRight} className={"fa-fw"} />
@@ -143,9 +171,10 @@ const FilesToFolders = () => {
               }}
               placeholder={"$0"}
               onClear={() => setReplace("")}
+              disabled={isLoading}
             />
           </Label>
-        </Columns>
+        </InputWrapper>
         <RunButton
           className={"confirm"}
           onClick={() => {
@@ -192,7 +221,7 @@ const FilesToFolders = () => {
                 reset();
               });
           }}
-          disabled={selected.length <= 0 || path === ""}
+          disabled={selected.length <= 0 || path === "" || isLoading}
         >
           Boom!
         </RunButton>
@@ -202,3 +231,24 @@ const FilesToFolders = () => {
 };
 
 export default FilesToFolders;
+
+const SelectWrapper = styled.div`
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  grid-template-rows: auto 1fr;
+  height: 50vh;
+  grid-template-areas: "opt1 . opt2" "input1 arrow input2";
+`;
+
+const SelectOptions = styled.div`
+  justify-self: end;
+  font-size: 0.75rem;
+  display: flex;
+  gap: 0.125rem;
+  padding: 0.125rem;
+`;
+
+const InputWrapper = styled.div`
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+`;

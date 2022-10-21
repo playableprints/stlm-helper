@@ -29,7 +29,7 @@ const FolderPicker = ({ onPick, onClear, onCancel, disabled, value, placeholder,
 
   return (
     <Wrapper {...props} className={disabled ? "disabled" : ""}>
-      <LocalButton onClick={handleChange} title={"Pick Folder..."}>
+      <LocalButton onClick={handleChange} disabled={disabled} title={"Pick Folder..."}>
         <FontAwesomeIcon icon={faFolderOpen} />
       </LocalButton>
       <Value className={value === "" ? "empty" : ""} onClick={handleChange}>
@@ -67,10 +67,10 @@ const Wrapper = styled.div`
     border-color: #c66;
   }
   &.disabled {
-    border-color: #666;
-    background-color: #333;
-    color: #aaa;
-    cursor: initial;
+    border-color: #666 !important;
+    background-color: #333 !important;
+    color: #aaa !important;
+    cursor: initial !important;
   }
   &:focus-within.invalid {
     border-color: #f99;

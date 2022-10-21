@@ -1,6 +1,7 @@
-import { faClose } from "@fortawesome/free-solid-svg-icons";
+import { faClose, faUndo } from "@fortawesome/free-solid-svg-icons";
 import { ChangeEvent, ForwardedRef, forwardRef, InputHTMLAttributes, useCallback, useState } from "react";
 import styled from "styled-components";
+import useMergedRef from "../../Utility/usemergedref";
 import IconButton from "../buttons/IconButton";
 
 const Wrapper = styled.div`
@@ -41,33 +42,70 @@ const Inner = styled.input`
 
 export type InputProps = {
   onClear?: () => void;
+  onReset?: () => void;
+  onValidate?: (input: string) => string;
   inputClass?: string;
 } & InputHTMLAttributes<HTMLInputElement>;
 
 export default forwardRef(
   (
-    { className, onClear, onChange, disabled, inputClass, ...props }: InputProps,
+    { className, onClear, onReset, onChange, disabled, inputClass, onValidate, spellCheck, ...props }: InputProps,
     fRef: ForwardedRef<HTMLInputElement>
   ) => {
+    const [ref, setRef] = useMergedRef(fRef);
+
     const [invalid, setInvalid] = useState(false);
+
+    const handleValidation = useCallback(
+      (v: string) => {
+        if (ref.current && onValidate) {
+          const validityMessage = onValidate(v) ?? "";
+          setInvalid(validityMessage !== "");
+          ref.current.setCustomValidity(validityMessage);
+        }
+      },
+      [onValidate]
+    );
+
     const handleChange = useCallback(
       (e: ChangeEvent<HTMLInputElement>) => {
+        handleValidation(e.currentTarget.value);
         onChange && onChange(e);
-        setInvalid(!e.currentTarget.validity.valid);
       },
       [onChange]
     );
 
     return (
       <Wrapper className={`${className ?? ""} ${disabled ? "disabled" : ""} ${invalid ? "invalid" : ""}`}>
-        <Inner ref={fRef} {...props} disabled={disabled} className={inputClass} onChange={handleChange} />
-        {onClear && (
+        <Inner
+          ref={setRef}
+          {...props}
+          disabled={disabled}
+          className={inputClass}
+          onChange={handleChange}
+          spellCheck={spellCheck ?? false}
+        />
+        {onReset && (
           <IconButton
             tabIndex={-1}
             className={"danger"}
             disabled={disabled}
             onClick={() => {
+              onReset();
+            }}
+            title={"Reset"}
+            icon={faUndo}
+          />
+        )}
+        {onClear && (
+          <IconButton
+            tabIndex={-1}
+            className={"danger"}
+            disabled={disabled}
+            title={"Clear"}
+            onClick={() => {
               onClear();
+              handleValidation("");
             }}
             icon={faClose}
           />
