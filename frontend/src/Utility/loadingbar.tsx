@@ -8,7 +8,10 @@ export type ILoadingBarControls = {
   for: (time: number) => void;
 };
 
-const CTX = createContext<ILoadingBarControls>({ show: () => {}, for: () => {}, hide: () => {} });
+const CTX = createContext<{ controls: ILoadingBarControls; isVisible: boolean }>({
+  controls: { show: () => {}, for: () => {}, hide: () => {} },
+  isVisible: false,
+});
 
 const cylon = keyframes`
   from {
@@ -60,7 +63,7 @@ export const LoadingBarProvider = ({ children }: { children?: ReactNode }) => {
   }, []);
 
   return (
-    <CTX.Provider value={controls}>
+    <CTX.Provider value={{ controls, isVisible }}>
       {createPortal(<Bar className={isVisible ? "visible" : ""} />, document.getElementById("meta-root")!)}
       {children}
     </CTX.Provider>
@@ -68,7 +71,8 @@ export const LoadingBarProvider = ({ children }: { children?: ReactNode }) => {
 };
 
 export const useLoadingBar = () => {
-  return useContext(CTX);
+  const { controls, isVisible } = useContext(CTX);
+  return [controls, isVisible] as [ILoadingBarControls, boolean];
 };
 
 export default useLoadingBar;

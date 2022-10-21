@@ -8,6 +8,7 @@ import (
 
 	fe "stlmhelper/lib/folderexploder"
 	fsutil "stlmhelper/lib/fsutil"
+	m "stlmhelper/lib/manifest"
 )
 
 //go:embed all:frontend/dist
@@ -31,6 +32,7 @@ func main() {
 		Bind: []interface{}{
 			app,
 			exploder,
+			&m.Tags{},
 			fsutil,
 		},
 	})

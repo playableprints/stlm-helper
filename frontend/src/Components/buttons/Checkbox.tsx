@@ -23,6 +23,7 @@ export default styled(({ icon, checked, className, disabled, children, ...props 
   display: inline-flex;
   gap: 0.125rem;
   cursor: pointer;
+  text-align: start;
   & > .icon {
     color: var(--local-clr);
     --local-clr: var(--text-accent);

@@ -11,12 +11,12 @@ const interceptContext = (e: Event) => {
 };
 
 export default ({ children }: { children: ReactNode }) => {
-  useEffect(() => {
-    document.addEventListener("contextmenu", interceptContext);
-    return () => {
-      document.removeEventListener("contextmenu", interceptContext);
-    };
-  }, []);
+  // useEffect(() => {
+  //   document.addEventListener("contextmenu", interceptContext);
+  //   return () => {
+  //     document.removeEventListener("contextmenu", interceptContext);
+  //   };
+  // }, []);
   return (
     <LoggerProvider>
       <HashRouter>

@@ -1,4 +1,4 @@
-import { ChangeEvent, InputHTMLAttributes, useCallback, useEffect, useState } from "react";
+import { ChangeEvent, InputHTMLAttributes, useCallback, useEffect, useRef, useState } from "react";
 import Input, { InputProps } from "./Input";
 
 const isValidRegex = (v: string) => {
@@ -10,26 +10,50 @@ const isValidRegex = (v: string) => {
   }
 };
 
-export default ({ value, onChange, ...props }: InputProps) => {
+export default ({ value, onClear, onChange, ...props }: InputProps) => {
   const [cache, setCache] = useState(value);
 
   useEffect(() => {
     setCache(value);
   }, [value]);
 
+  const validate = useCallback((value: string) => {
+    if (isValidRegex(value)) {
+      return "";
+    }
+    return "Must be a valid Regex";
+  }, []);
+
   const handleChange = useCallback(
     (e: ChangeEvent<HTMLInputElement>) => {
       const v = e.currentTarget.value;
-      if (isValidRegex(v)) {
-        e.currentTarget.setCustomValidity("");
+      const valid = validate(v);
+      if (valid === "") {
         onChange && onChange(e);
-      } else {
-        e.currentTarget.setCustomValidity("Must be valid Regex");
       }
       setCache(v);
     },
     [onChange]
   );
 
-  return <Input type={"text"} {...props} onChange={handleChange} value={cache} />;
+  const handleClear = useCallback(() => {
+    if (onClear) {
+      onClear();
+      setCache("");
+    }
+  }, [onClear]);
+
+  const ref = useRef<HTMLInputElement>(null);
+
+  return (
+    <Input
+      ref={ref}
+      type={"text"}
+      {...props}
+      onChange={handleChange}
+      onClear={onClear ? handleClear : undefined}
+      onValidate={validate}
+      value={cache}
+    />
+  );
 };
