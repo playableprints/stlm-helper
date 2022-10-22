@@ -16,8 +16,8 @@ Use the Wails instructions to setup and configure Go and Nodejs: https://wails.i
 
 To get started once this repo is checked out:
 
-- `cd frontend && npm install && npm build`
-- `cd .. && wails dev`
+-   `cd frontend && npm install && npm run build`
+-   `cd .. && wails dev`
 
 ## About Wails
 
@@ -38,10 +38,10 @@ To build a redistributable, production mode package, use `wails build`.
 
 ## Technical resources
 
-- https://go.dev
-- https://nodejs.org/
-- https://reactjs.org
-- https://www.typescriptlang.org
+-   https://go.dev
+-   https://nodejs.org/
+-   https://reactjs.org
+-   https://www.typescriptlang.org
 
 ## License
 
