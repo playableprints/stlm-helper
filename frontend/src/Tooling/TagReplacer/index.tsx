@@ -58,8 +58,8 @@ const TagReplacer = () => {
           );
           loadingBar.hide();
         })
-        .catch((e) => {
-          logger.error(e);
+        .catch((e: Error) => {
+          logger.error(e.name, e.message);
           loadingBar.hide();
         });
     }
@@ -71,8 +71,8 @@ const TagReplacer = () => {
         .then((result) => {
           setResults(result);
         })
-        .catch((e) => {
-          logger.error(e);
+        .catch((e: Error) => {
+          logger.error(e.name, e.message);
           setResults({});
         });
     } else {
@@ -196,8 +196,8 @@ const TagReplacer = () => {
                   notifications.confirm(<>No tags were changed</>, "Nothing happened!");
                 }
               })
-              .catch((e) => {
-                logger.error(e);
+              .catch((e: Error) => {
+                logger.error(e.name, e.message);
                 notifications.error(<>Check the logs</>, "Something went wrong");
               })
               .finally(() => {

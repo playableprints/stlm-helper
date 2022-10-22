@@ -58,10 +58,10 @@ const Convert3mf = () => {
                     );
                     loadingBar.hide();
                   })
-                  .catch((e) => {
+                  .catch((e: Error) => {
+                    logger.error(e.name, e.message);
                     reset();
                     loadingBar.hide();
-                    logger.error(e);
                   });
               }
             }}
@@ -160,9 +160,9 @@ const Convert3mf = () => {
                 }
                 reset();
               })
-              .catch((e) => {
+              .catch((e: Error) => {
                 loadingBar.hide();
-                logger.error(e);
+                logger.error(e.message);
                 reset();
               });
           }}
