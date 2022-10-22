@@ -2,6 +2,10 @@
 
 ## About this app
 
+## NOTE
+
+use `go install github.com/wailsapp/wails/v2/cmd/wails@2.0.0` when setting up wails. v2.1.0 of wails has a breaking bug.
+
 stlm-helper is a grab-bag of utilities for messing around with filesystems and 3D models, built from the React/Typescript template using [Wails](wails.io).
 
 This repo builds a single executable that produces a UI to click buttons on.
@@ -12,8 +16,8 @@ Use the Wails instructions to setup and configure Go and Nodejs: https://wails.i
 
 To get started once this repo is checked out:
 
-- `cd frontend && npm install && npm run build`
-- `cd .. && wails dev`
+-   `cd frontend && npm install && npm run build`
+-   `cd .. && wails dev`
 
 ## About Wails
 
@@ -34,10 +38,10 @@ To build a redistributable, production mode package, use `wails build`.
 
 ## Technical resources
 
-- https://go.dev
-- https://nodejs.org/
-- https://reactjs.org
-- https://www.typescriptlang.org
+-   https://go.dev
+-   https://nodejs.org/
+-   https://reactjs.org
+-   https://www.typescriptlang.org
 
 ## License
 
