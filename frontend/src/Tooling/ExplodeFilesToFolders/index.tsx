@@ -81,7 +81,10 @@ const FilesToFolders = () => {
     <>
       <ToolTitle>Explode Files to Folders</ToolTitle>
       <Panel>
-        <Label text={"Folder"} help={"Select a folder on your file system that contains the files you want to split."}>
+        <Label
+          text={"Directory"}
+          help={"Select a folder on your file system that contains the files you want to split."}
+        >
           <FolderPicker
             value={path}
             disabled={isLoading}

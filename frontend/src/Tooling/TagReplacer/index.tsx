@@ -88,7 +88,7 @@ const TagReplacer = () => {
     <>
       <ToolTitle>Bulk Tag Replacer</ToolTitle>
       <Panel>
-        <Label text={"Folder"} help={"Select a folder from which to collect tags"}>
+        <Label text={"Directory"} help={"Select a folder from which to collect tags"}>
           <FolderPicker
             value={path}
             onClear={reset}
@@ -180,13 +180,18 @@ const TagReplacer = () => {
           className={"confirm"}
           onClick={() => {
             loadingBar.show();
-            ReplaceTags(path, matcher, replace, selected)
+            ReplaceTags(path, matcher === "" ? ".*" : matcher, replace, selected)
               .then((changes) => {
                 if (changes.length > 0) {
                   changes.forEach((each) => {
                     logger.success(`changed '${each.From}' to '${each.To}' in '${each.In}'`);
                   });
-                  notifications.confirm(<>{changes.length} tags changed</>, "Success!");
+                  notifications.confirm(
+                    <>
+                      {changes.length} tag {changes.length === 1 ? "entry" : "entries"} changed
+                    </>,
+                    "Success!"
+                  );
                 } else {
                   notifications.confirm(<>No tags were changed</>, "Nothing happened!");
                 }
