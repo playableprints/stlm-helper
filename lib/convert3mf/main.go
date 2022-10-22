@@ -16,40 +16,21 @@ type status struct {
 	Message string
 }
 
-func (c *Convert3mf) ConvertMany(path string, files []string, outputDir string) map[string]status {
+func (c *Convert3mf) ConvertMany(root string, files []string, outputDir string) map[string]status {
 
 	result := make(map[string]status)
 
 	for _, f := range files {
 		basename := strings.TrimSuffix(f, filepath.Ext(f))
-		input := filepath.Join(path, f)
-		output := filepath.Join(outputDir, basename+".3mf")
+		input := filepath.Join(root, f)
+		output := filepath.Join(outputDir, basename)
 
-		model := new(go3mf.Model)
-		r, err := os.Open(input)
-		if err != nil {
-			result[f] = status{false, err.Error()}
-			break
+		lerr := c.Convert(input, output)
+		if lerr != nil {
+			result[f] = status{false, lerr.Error()}
+		} else {
+			result[f] = status{true, "converted successfully"}
 		}
-		d := stl.NewDecoder(r)
-		err = d.Decode(model)
-		if err != nil {
-			result[f] = status{false, err.Error()}
-			break
-		}
-		r.Close()
-		w, err := go3mf.CreateWriter(output)
-		if err != nil {
-			result[f] = status{false, err.Error()}
-			break
-		}
-		err = w.Encode(model)
-		if err != nil {
-			result[f] = status{false, err.Error()}
-			break
-		}
-		w.Close()
-		result[f] = status{true, "converted successfully"}
 	}
 	return result
 }
