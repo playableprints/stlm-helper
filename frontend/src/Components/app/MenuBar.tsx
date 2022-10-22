@@ -1,9 +1,10 @@
 import styled from "styled-components";
-import { LinkProps, NavLink } from "react-router-dom";
-import { HTMLAttributes } from "react";
+import { NavLink, useLocation, useNavigate } from "react-router-dom";
+import { HTMLAttributes, useCallback, MouseEvent, ButtonHTMLAttributes } from "react";
 import IconButton from "../buttons/IconButton";
 import { BrowserOpenURL } from "../../../wailsjs/runtime/runtime";
 import { faDiscord, faGithub } from "@fortawesome/free-brands-svg-icons";
+import useLoadingBar from "../../Utility/loadingbar";
 
 const Spacer = styled.div`
   flex: 1 1 auto;
@@ -56,13 +57,18 @@ const Branding = styled(NavLink)`
 `;
 
 const Menu = styled(({ children, ...props }: HTMLAttributes<HTMLDivElement>) => {
+  const [, isLoading] = useLoadingBar();
   return (
     <div {...props}>
       <Branding to={"/"}>Euler</Branding>
       {children}
       <Spacer />
-      <Link to={"/docs"}>Documentation</Link>
-      <Link to={"/logs"}>Event Log</Link>
+      <Link disabled={isLoading} to={"/docs"}>
+        Documentation
+      </Link>
+      <Link disabled={isLoading} to={"/logs"}>
+        Event Log
+      </Link>
       <Socials />
     </div>
   );
@@ -80,16 +86,30 @@ const Menu = styled(({ children, ...props }: HTMLAttributes<HTMLDivElement>) => 
   height: 100vh;
 `;
 
-const Link = styled(({ className, ...props }: LinkProps) => {
-  return <NavLink {...props} className={({ isActive }) => `${isActive ? "current" : ""} ${className}`} />;
+type ILinkProps = {
+  to: string;
+} & ButtonHTMLAttributes<HTMLButtonElement>;
+
+const Link = styled(({ className, to, onClick, ...props }: ILinkProps) => {
+  const nav = useNavigate();
+  const loc = useLocation();
+  const handleClick = useCallback(
+    (e: MouseEvent<HTMLButtonElement>) => {
+      nav(to);
+      onClick && onClick(e);
+    },
+    [nav, onClick, to]
+  );
+  return <button onClick={handleClick} className={`${loc.pathname === to ? "current" : ""} ${className}`} {...props} />;
 })`
   color: #ccc;
-  text-decoration: none;
   font-variant: small-caps;
   font-size: 1.125rem;
   padding: 0.25rem 0.5rem;
   margin-right: 0.5rem;
   display: flex;
+  font-size: inherit;
+  cursor: pointer;
   &.current {
     background-color: #222;
     margin-right: 0;
@@ -105,6 +125,14 @@ const Link = styled(({ className, ...props }: LinkProps) => {
     background-color: #444;
   }
   transition: color 0.3s, background-color 0.3s, margin-right 0.3s, padding-right 0.3s;
+  :disabled {
+    cursor: initial;
+    background-color: transparent;
+    color: #999;
+  }
+  :disabled:hover {
+    background-color: transparent;
+  }
 `;
 
 export default {

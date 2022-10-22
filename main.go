@@ -6,6 +6,7 @@ import (
 	"github.com/wailsapp/wails/v2"
 	"github.com/wailsapp/wails/v2/pkg/options"
 
+	"stlmhelper/lib/convert3mf"
 	fe "stlmhelper/lib/folderexploder"
 	fsutil "stlmhelper/lib/fsutil"
 	m "stlmhelper/lib/manifest"
@@ -34,6 +35,7 @@ func main() {
 			exploder,
 			&m.Tags{},
 			fsutil,
+			&convert3mf.Convert3mf{},
 		},
 	})
 

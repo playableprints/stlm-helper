@@ -64,7 +64,8 @@ const FilesToFolders = () => {
         .then((h) => {
           setHierarchy(toTree(h));
         })
-        .catch(() => {
+        .catch((e) => {
+          logger.error(e);
           setHierarchy([]);
         });
     } else {
@@ -99,9 +100,10 @@ const FilesToFolders = () => {
                     setSelected(l);
                     loadingBar.hide();
                   })
-                  .catch(() => {
-                    reset();
+                  .catch((e) => {
+                    logger.error(e);
                     loadingBar.hide();
+                    reset();
                   });
               }
             }}
@@ -216,9 +218,10 @@ const FilesToFolders = () => {
                 }
                 reset();
               })
-              .catch(() => {
+              .catch((e) => {
                 loadingBar.hide();
                 reset();
+                logger.error(e);
               });
           }}
           disabled={selected.length <= 0 || path === "" || isLoading}
