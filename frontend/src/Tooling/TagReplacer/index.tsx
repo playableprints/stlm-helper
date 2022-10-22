@@ -15,7 +15,6 @@ import Button from "../../Components/buttons/Button";
 import Label from "../../Components/layout/Label";
 import Input from "../../Components/inputs/Input";
 import RegexInput from "../../Components/inputs/RegexInput";
-import Nav from "../../Components/buttons/Nav";
 import RunButton from "../../Components/buttons/RunButton";
 import natsort from "../../Utility/natsort";
 import useDebounceCallback from "../../Utility/usedebouncecallback";
@@ -72,7 +71,8 @@ const TagReplacer = () => {
         .then((result) => {
           setResults(result);
         })
-        .catch(() => {
+        .catch((e) => {
+          logger.error(e);
           setResults({});
         });
     } else {

@@ -1,23 +1,28 @@
 package fsutil
 
 import (
-	"fmt"
+	"io/fs"
 	"os"
+	"path/filepath"
+
+	"github.com/bmatcuk/doublestar/v4"
 )
 
 type FSUtil struct{}
 
-func (e *FSUtil) GetContents(path string, filter string, includeDirs bool) []string {
+func (e *FSUtil) GetContents(root string, filter string, includeDirs bool) ([]string, error) {
 	retval := []string{}
-	files, err := os.ReadDir(path)
-	if err != nil {
-		fmt.Printf("%v", err.Error())
-	}
 
-	for _, f := range files {
-		if (f.IsDir() && includeDirs) || !f.IsDir() {
-			retval = append(retval, f.Name())
+	fsys := os.DirFS(root)
+	err := doublestar.GlobWalk(fsys, filepath.ToSlash(filter), func(path string, d fs.DirEntry) error {
+		if !d.IsDir() || includeDirs {
+			retval = append(retval, path)
 		}
+		return nil
+	})
+
+	if err != nil {
+		return retval, err
 	}
-	return retval
+	return retval, nil
 }

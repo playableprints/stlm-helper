@@ -4,6 +4,7 @@ go 1.18
 
 require (
 	github.com/bmatcuk/doublestar/v4 v4.2.0
+	github.com/hpinc/go3mf v0.24.1
 	github.com/tidwall/sjson v1.2.5
 	github.com/wailsapp/wails/v2 v2.0.0
 )
@@ -23,6 +24,7 @@ require (
 	github.com/mattn/go-isatty v0.0.14 // indirect
 	github.com/pkg/browser v0.0.0-20210706143420-7d21f8c997e2 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
+	github.com/qmuntal/opc v0.7.10 // indirect
 	github.com/tidwall/gjson v1.14.3 // indirect
 	github.com/tidwall/match v1.1.1 // indirect
 	github.com/tidwall/pretty v1.2.1 // indirect
