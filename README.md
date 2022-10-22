@@ -12,7 +12,7 @@ Use the Wails instructions to setup and configure Go and Nodejs: https://wails.i
 
 To get started once this repo is checked out:
 
-- `cd frontend && npm install && npm build`
+- `cd frontend && npm install && npm run build`
 - `cd .. && wails dev`
 
 ## About Wails
