@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import styled from "styled-components";
 import { GetContents } from "../../../wailsjs/go/fsutil/FSUtil";
 import { ConvertMany } from "../../../wailsjs/go/convert3mf/Convert3mf";
@@ -16,6 +16,8 @@ import useNotifications from "../../Utility/notifications";
 import { BrowserOpenURL } from "../../../wailsjs/runtime/runtime";
 import SlimButton from "../../Components/buttons/SlimButton";
 import Nav from "../../Components/buttons/Nav";
+import { faFilter } from "@fortawesome/free-solid-svg-icons";
+import RegexInput from "../../Components/inputs/RegexInput";
 
 const Convert3mf = () => {
   const [path, setPath] = useState<string>("");
@@ -29,11 +31,31 @@ const Convert3mf = () => {
     setFileList({});
     setSelected([]);
     setOutpath("");
+    setFilter("");
   }, []);
 
   const logger = useLogger("ConvertTo3MF");
   const notifications = useNotifications();
   const [loadingBar, isLoading] = useLoadingBar();
+
+  const [filter, setFilter] = useState<string>("");
+
+  const filteredFileList = useMemo(() => {
+    if (filter === "") {
+      return filelist;
+    }
+    const r = new RegExp(filter, "i");
+    return Object.entries(filelist).reduce((acc, [f, n]) => {
+      if (f.match(r)) {
+        acc[f] = n;
+      }
+      return acc;
+    }, {} as Items);
+  }, [filter, filelist]);
+
+  const filteredSelection = useMemo(() => {
+    return selected.filter((a) => (filter === "" ? true : a in filteredFileList));
+  }, [selected, filter, filteredFileList]);
 
   return (
     <>
@@ -70,10 +92,22 @@ const Convert3mf = () => {
         </Label>
         <SelectWrapper>
           <SelectOptions style={{ gridArea: "opt" }}>
+            <RegexInput
+              disabled={path === "" || isLoading}
+              icon={faFilter}
+              value={filter}
+              onChange={(e) => {
+                setFilter(e.currentTarget.value);
+              }}
+              onClear={() => setFilter("")}
+            />
             <Button
               disabled={path === "" || isLoading}
               onClick={() => {
-                setSelected(Object.keys(filelist));
+                setSelected((prev) => {
+                  const f = Object.keys(filteredFileList).filter((a) => !prev.includes(a));
+                  return [...prev, ...f];
+                });
               }}
               title={"Select All"}
             >
@@ -82,7 +116,10 @@ const Convert3mf = () => {
             <Button
               disabled={path === "" || isLoading}
               onClick={() => {
-                setSelected([]);
+                const f = Object.keys(filteredFileList);
+                setSelected((prev) => {
+                  return prev.filter((a) => !f.includes(a));
+                });
               }}
               title={"Select None"}
             >
@@ -91,7 +128,7 @@ const Convert3mf = () => {
           </SelectOptions>
           <ScrollPane style={{ gridArea: "input" }}>
             <ListSelector
-              items={filelist}
+              items={filteredFileList}
               disabled={path === "" || isLoading}
               selected={selected}
               onPick={(value: string) => {
@@ -114,17 +151,18 @@ const Convert3mf = () => {
           />
         </Label>
         <RunButton
-          disabled={path === "" || selected.length === 0 || isLoading}
+          disabled={path === "" || filteredSelection.length === 0 || isLoading}
           onClick={() => {
             const theOutpath = outpath === "" ? path : outpath;
             loadingBar.show();
             notifications.info(
               <>
-                Converting {selected.length} {selected.length === 1 ? "STL" : "STLs"}. This might take a little while.
+                Converting {filteredSelection.length} {filteredSelection.length === 1 ? "STL" : "STLs"}. This might take
+                a little while.
               </>,
               "Hang Tight..."
             );
-            ConvertMany(path, selected, theOutpath)
+            ConvertMany(path, filteredSelection, theOutpath)
               .then((res) => {
                 loadingBar.hide();
                 let success = true;
@@ -185,7 +223,6 @@ const SelectWrapper = styled.div`
 `;
 
 const SelectOptions = styled.div`
-  justify-self: end;
   font-size: 0.75rem;
   display: flex;
   gap: 0.125rem;

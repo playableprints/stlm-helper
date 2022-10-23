@@ -38,7 +38,7 @@ const TagReplacer = () => {
     if (filter === "") {
       return taglist;
     }
-    const r = new RegExp(filter);
+    const r = new RegExp(filter, "i");
     return Object.entries(taglist).reduce((acc, [t, n]) => {
       if (t.match(r)) {
         acc[t] = n;
@@ -51,6 +51,7 @@ const TagReplacer = () => {
     setTaglist({});
     setResults({});
     setPath("");
+    setFilter("");
   }, []);
 
   const load = useCallback((v: string, setAll: boolean = false) => {
@@ -80,6 +81,10 @@ const TagReplacer = () => {
     }
   }, []);
 
+  const filteredSelection = useMemo(() => {
+    return selected.filter((a) => (filter === "" ? true : a in filteredTaglist));
+  }, [selected, filter, filteredTaglist]);
+
   const [preview] = useDebounceCallback((s: string[], p: string, m: string, r: string) => {
     if (s.length > 0 && p !== "" && (r !== "" || m !== "")) {
       PreviewReplace(s, m === "" ? ".*" : m, r)
@@ -96,8 +101,8 @@ const TagReplacer = () => {
   }, 200);
 
   useEffect(() => {
-    preview(selected, path, matcher, replace);
-  }, [path, selected, matcher, replace]);
+    preview(filteredSelection, path, matcher, replace);
+  }, [path, filteredSelection, matcher, replace]);
 
   return (
     <>
@@ -210,12 +215,7 @@ const TagReplacer = () => {
           className={"confirm"}
           onClick={() => {
             loadingBar.show();
-            ReplaceTags(
-              path,
-              matcher === "" ? ".*" : matcher,
-              replace,
-              selected.filter((a) => (filter === "" ? true : a in filteredTaglist))
-            )
+            ReplaceTags(path, matcher === "" ? ".*" : matcher, replace, filteredSelection)
               .then((changes) => {
                 if (changes.length > 0) {
                   changes.forEach((each) => {
@@ -240,7 +240,7 @@ const TagReplacer = () => {
                 loadingBar.hide();
               });
           }}
-          disabled={selected.length <= 0 || path === "" || (matcher === "" && replace === "") || isLoading}
+          disabled={filteredSelection.length <= 0 || path === "" || (matcher === "" && replace === "") || isLoading}
         >
           Go!
         </RunButton>

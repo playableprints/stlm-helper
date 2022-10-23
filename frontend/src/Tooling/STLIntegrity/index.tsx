@@ -1,4 +1,4 @@
-import { faCheck, faExclamationTriangle, faQuestion } from "@fortawesome/free-solid-svg-icons";
+import { faCheck, faExclamationTriangle, faFilter, faQuestion } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useState, useCallback, HTMLAttributes, useMemo } from "react";
 import styled from "styled-components";
@@ -7,6 +7,7 @@ import { CheckMany } from "../../../wailsjs/go/stlintegrity/STLIntegrity";
 import Button from "../../Components/buttons/Button";
 import Checkbox from "../../Components/buttons/Checkbox";
 import RunButton from "../../Components/buttons/RunButton";
+import RegexInput from "../../Components/inputs/RegexInput";
 import Label from "../../Components/layout/Label";
 import Panel from "../../Components/layout/Panel";
 import ScrollPane from "../../Components/layout/ScrollPane";
@@ -27,11 +28,31 @@ const STLIntegrity = () => {
   const [selected, setSelected] = useState<string[]>([]);
   const [results, setResults] = useState<{ [key: string]: { report: string[]; status: boolean } }>({});
 
+  const [filter, setFilter] = useState<string>("");
+
+  const filteredFileList = useMemo(() => {
+    if (filter === "") {
+      return filelist;
+    }
+    const r = new RegExp(filter, "i");
+    return Object.entries(filelist).reduce((acc, [f, n]) => {
+      if (f.match(r)) {
+        acc[f] = n;
+      }
+      return acc;
+    }, {} as Items);
+  }, [filter, filelist]);
+
+  const filteredSelection = useMemo(() => {
+    return selected.filter((a) => (filter === "" ? true : a in filteredFileList));
+  }, [selected, filter, filteredFileList]);
+
   const reset = useCallback(() => {
     setPath("");
     setFileList({});
     setSelected([]);
     setResults({});
+    setFilter("");
   }, []);
 
   const displayItem = useCallback(
@@ -96,10 +117,22 @@ const STLIntegrity = () => {
         </Label>
         <SelectWrapper>
           <SelectOptions style={{ gridArea: "opt" }}>
+            <RegexInput
+              disabled={path === "" || isLoading}
+              icon={faFilter}
+              value={filter}
+              onChange={(e) => {
+                setFilter(e.currentTarget.value);
+              }}
+              onClear={() => setFilter("")}
+            />
             <Button
               disabled={path === "" || isLoading}
               onClick={() => {
-                setSelected(Object.keys(filelist));
+                setSelected((prev) => {
+                  const f = Object.keys(filteredFileList).filter((a) => !prev.includes(a));
+                  return [...prev, ...f];
+                });
               }}
               title={"Select All"}
             >
@@ -108,7 +141,10 @@ const STLIntegrity = () => {
             <Button
               disabled={path === "" || isLoading}
               onClick={() => {
-                setSelected([]);
+                const f = Object.keys(filteredFileList);
+                setSelected((prev) => {
+                  return prev.filter((a) => !f.includes(a));
+                });
               }}
               title={"Select None"}
             >
@@ -117,7 +153,7 @@ const STLIntegrity = () => {
           </SelectOptions>
           <ScrollPane style={{ gridArea: "input" }}>
             <ListSelector
-              items={filelist}
+              items={filteredFileList}
               disabled={path === "" || isLoading}
               selected={selected}
               onPick={(value: string) => {
@@ -129,7 +165,7 @@ const STLIntegrity = () => {
             />
 
             <List>
-              {Object.entries(filelist).map(([tag, name]) => {
+              {Object.entries(filteredFileList).map(([tag, name]) => {
                 return (
                   <Entry key={tag}>
                     <EntryName>
@@ -158,7 +194,7 @@ const STLIntegrity = () => {
         <RunButton
           onClick={() => {
             loadingBar.show();
-            CheckMany(path, selected)
+            CheckMany(path, filteredSelection)
               .then((results) => {
                 let fails = 0;
                 let passes = 0;
@@ -205,7 +241,7 @@ const STLIntegrity = () => {
               });
           }}
           className={"confirm"}
-          disabled={path === "" || selected.length === 0 || isLoading}
+          disabled={path === "" || filteredSelection.length === 0 || isLoading}
         >
           Check
         </RunButton>
@@ -269,7 +305,6 @@ const SelectWrapper = styled.div`
 `;
 
 const SelectOptions = styled.div`
-  justify-self: end;
   font-size: 0.75rem;
   display: flex;
   gap: 0.125rem;

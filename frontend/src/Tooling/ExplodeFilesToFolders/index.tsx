@@ -1,10 +1,10 @@
 import { Prepare, ExplodeList } from "../../../wailsjs/go/folderexploder/Exploder";
 import { GetContents } from "../../../wailsjs/go/fsutil/FSUtil";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import ToolTitle from "../../Components/layout/ToolTitle";
 import FolderPicker from "../../Components/selectors/FolderPicker";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faArrowRight, faChevronRight } from "@fortawesome/free-solid-svg-icons";
+import { faArrowRight, faChevronRight, faFilter } from "@fortawesome/free-solid-svg-icons";
 import ListSelector, { Items } from "../../Components/selectors/ListSelector";
 import RegexInput from "../../Components/inputs/RegexInput";
 import RunButton from "../../Components/buttons/RunButton";
@@ -52,11 +52,31 @@ const FilesToFolders = () => {
     setFileList({});
     setSelected([]);
     setHierarchy([]);
+    setFilter("");
   }, []);
 
   const logger = useLogger("ExplodeFiles");
   const notifications = useNotifications();
   const [loadingBar, isLoading] = useLoadingBar();
+
+  const [filter, setFilter] = useState<string>("");
+
+  const filteredFileList = useMemo(() => {
+    if (filter === "") {
+      return filelist;
+    }
+    const r = new RegExp(filter, "i");
+    return Object.entries(filelist).reduce((acc, [f, n]) => {
+      if (f.match(r)) {
+        acc[f] = n;
+      }
+      return acc;
+    }, {} as Items);
+  }, [filter, filelist]);
+
+  const filteredSelection = useMemo(() => {
+    return selected.filter((a) => (filter === "" ? true : a in filteredFileList));
+  }, [selected, filter, filteredFileList]);
 
   const [preview] = useDebounceCallback((s: string[], m: string, r: string) => {
     if (s.length > 0) {
@@ -74,8 +94,8 @@ const FilesToFolders = () => {
   }, 200);
 
   useEffect(() => {
-    preview(selected, matcher, replace);
-  }, [selected, matcher, replace]);
+    preview(filteredSelection, matcher, replace);
+  }, [filteredSelection, matcher, replace]);
 
   return (
     <>
@@ -115,10 +135,22 @@ const FilesToFolders = () => {
         </Label>
         <SelectWrapper>
           <SelectOptions style={{ gridArea: "opt1" }}>
+            <RegexInput
+              disabled={path === "" || isLoading}
+              icon={faFilter}
+              value={filter}
+              onChange={(e) => {
+                setFilter(e.currentTarget.value);
+              }}
+              onClear={() => setFilter("")}
+            />
             <Button
               disabled={path === "" || isLoading}
               onClick={() => {
-                setSelected(Object.keys(filelist));
+                setSelected((prev) => {
+                  const f = Object.keys(filteredFileList).filter((a) => !prev.includes(a));
+                  return [...prev, ...f];
+                });
               }}
               title={"Select All"}
             >
@@ -127,7 +159,10 @@ const FilesToFolders = () => {
             <Button
               disabled={path === "" || isLoading}
               onClick={() => {
-                setSelected([]);
+                const f = Object.keys(filteredFileList);
+                setSelected((prev) => {
+                  return prev.filter((a) => !f.includes(a));
+                });
               }}
               title={"Select None"}
             >
@@ -136,7 +171,7 @@ const FilesToFolders = () => {
           </SelectOptions>
           <ScrollPane style={{ gridArea: "input1" }}>
             <ListSelector
-              items={filelist}
+              items={filteredFileList}
               disabled={path === "" || isLoading}
               selected={selected}
               onPick={(value: string) => {
@@ -185,7 +220,7 @@ const FilesToFolders = () => {
           onClick={() => {
             const thePath = path;
             loadingBar.show();
-            ExplodeList(path, selected, matcher === "" ? ".*" : matcher, replace === "" ? "$0" : replace)
+            ExplodeList(path, filteredSelection, matcher === "" ? ".*" : matcher, replace === "" ? "$0" : replace)
               .then((res) => {
                 loadingBar.hide();
                 let success = true;
@@ -227,7 +262,7 @@ const FilesToFolders = () => {
                 reset();
               });
           }}
-          disabled={selected.length <= 0 || path === "" || isLoading}
+          disabled={filteredSelection.length <= 0 || path === "" || isLoading}
         >
           Boom!
         </RunButton>
@@ -247,7 +282,6 @@ const SelectWrapper = styled.div`
 `;
 
 const SelectOptions = styled.div`
-  justify-self: end;
   font-size: 0.75rem;
   display: flex;
   gap: 0.125rem;
