@@ -12,7 +12,7 @@ import Panel from "../../Components/layout/Panel";
 import ScrollPane from "../../Components/layout/ScrollPane";
 import ToolTitle from "../../Components/layout/ToolTitle";
 import FolderPicker from "../../Components/selectors/FolderPicker";
-import { Items } from "../../Components/selectors/ListSelector";
+import ListSelector, { IDisplayProps, Items } from "../../Components/selectors/ListSelector";
 import useLoadingBar from "../../Utility/loadingbar";
 import useLogger from "../../Utility/logger";
 import useNotifications from "../../Utility/notifications";
@@ -33,6 +33,33 @@ const STLIntegrity = () => {
     setSelected([]);
     setResults({});
   }, []);
+
+  const displayItem = useCallback(
+    (props: IDisplayProps) => {
+      return (
+        <Entry>
+          <EntryName>
+            <Checkbox
+              disabled={props.disabled}
+              checked={props.checked}
+              onClick={() => {
+                props.onPick(props.value);
+              }}
+            >
+              {props.children}
+            </Checkbox>
+          </EntryName>
+          <Flag
+            status={
+              results[props.value] === undefined ? "unknown" : results[props.value].status ? "success" : "failure"
+            }
+            report={results[props.value]?.report ?? []}
+          />
+        </Entry>
+      );
+    },
+    [results]
+  );
 
   return (
     <>
@@ -89,6 +116,18 @@ const STLIntegrity = () => {
             </Button>
           </SelectOptions>
           <ScrollPane style={{ gridArea: "input" }}>
+            <ListSelector
+              items={filelist}
+              disabled={path === "" || isLoading}
+              selected={selected}
+              onPick={(value: string) => {
+                setSelected((prev) => {
+                  return prev.includes(value) ? prev.filter((n) => n !== value) : [...prev, value];
+                });
+              }}
+              display={displayItem}
+            />
+
             <List>
               {Object.entries(filelist).map(([tag, name]) => {
                 return (
