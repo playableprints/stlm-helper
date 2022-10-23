@@ -9,6 +9,7 @@ import Docs from "./Docs";
 import TagReplacer from "./Tooling/TagReplacer";
 import Convert3mf from "./Tooling/Convert3mf";
 import useLoadingBar from "./Utility/loadingbar";
+import STLIntegrity from "./Tooling/STLIntegrity";
 
 function App() {
   const [, isLoading] = useLoadingBar();
@@ -29,6 +30,9 @@ function App() {
         <MenuBar.Link disabled={isLoading} to="/tools/convert3mf" title="Convert STLs to 3MFs">
           Convert STL to 3MF
         </MenuBar.Link>
+        <MenuBar.Link disabled={isLoading} to="/tools/stlintegrity" title="Convert STLs to 3MFs">
+          STL Integrity
+        </MenuBar.Link>
       </MenuBar.Menu>
       <Content>
         <Routes>
@@ -38,6 +42,7 @@ function App() {
           <Route path={"/tools/filestofolder"} element={<FilesToFolders />} />
           <Route path={"/tools/tagreplacer"} element={<TagReplacer />} />
           <Route path={"/tools/convert3mf"} element={<Convert3mf />} />
+          <Route path={"/tools/stlintegrity"} element={<STLIntegrity />} />
         </Routes>
       </Content>
     </Wrapper>

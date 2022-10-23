@@ -10,6 +10,7 @@ import (
 	fe "stlmhelper/lib/folderexploder"
 	fsutil "stlmhelper/lib/fsutil"
 	m "stlmhelper/lib/manifest"
+	"stlmhelper/lib/stlintegrity"
 )
 
 //go:embed all:frontend/dist
@@ -18,9 +19,6 @@ var assets embed.FS
 func main() {
 	// Create an instance of the app structure
 	app := NewApp()
-
-	exploder := &fe.Exploder{}
-	fsutil := &fsutil.FSUtil{}
 
 	// Create application with options
 	err := wails.Run(&options.App{
@@ -32,10 +30,11 @@ func main() {
 		OnStartup:        app.startup,
 		Bind: []interface{}{
 			app,
-			exploder,
+			&fe.Exploder{},
 			&m.Tags{},
-			fsutil,
+			&fsutil.FSUtil{},
 			&convert3mf.Convert3mf{},
+			&stlintegrity.STLIntegrity{},
 		},
 	})
 
