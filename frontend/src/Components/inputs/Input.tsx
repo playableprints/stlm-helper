@@ -1,4 +1,5 @@
-import { faClose, faUndo } from "@fortawesome/free-solid-svg-icons";
+import { faClose, faUndo, IconDefinition } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { ChangeEvent, ForwardedRef, forwardRef, InputHTMLAttributes, useCallback, useState } from "react";
 import styled from "styled-components";
 import useMergedRef from "../../Utility/usemergedref";
@@ -40,7 +41,14 @@ const Inner = styled.input`
   }
 `;
 
+const Icon = styled.span`
+  flex: 0 0 auto;
+  color: var(--text-muted);
+  align-self: center;
+`;
+
 export type InputProps = {
+  icon?: IconDefinition;
   onClear?: () => void;
   onReset?: () => void;
   onValidate?: (input: string) => string;
@@ -49,7 +57,7 @@ export type InputProps = {
 
 export default forwardRef(
   (
-    { className, onClear, onReset, onChange, disabled, inputClass, onValidate, spellCheck, ...props }: InputProps,
+    { icon, className, onClear, onReset, onChange, disabled, inputClass, onValidate, spellCheck, ...props }: InputProps,
     fRef: ForwardedRef<HTMLInputElement>
   ) => {
     const [ref, setRef] = useMergedRef(fRef);
@@ -77,6 +85,11 @@ export default forwardRef(
 
     return (
       <Wrapper className={`${className ?? ""} ${disabled ? "disabled" : ""} ${invalid ? "invalid" : ""}`}>
+        {icon && (
+          <Icon>
+            <FontAwesomeIcon className={"fa-fw"} icon={icon} />
+          </Icon>
+        )}
         <Inner
           ref={setRef}
           {...props}

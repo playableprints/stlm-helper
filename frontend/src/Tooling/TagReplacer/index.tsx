@@ -1,6 +1,6 @@
-import { faArrowRight, faChevronRight } from "@fortawesome/free-solid-svg-icons";
+import { faArrowRight, faChevronRight, faFilter } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import Panel from "../../Components/layout/Panel";
 import ScrollPane from "../../Components/layout/ScrollPane";
 import ToolTitle from "../../Components/layout/ToolTitle";
@@ -31,6 +31,21 @@ const TagReplacer = () => {
   const [matcher, setMatcher] = useState<string>("");
   const [replace, setReplace] = useState<string>("");
   const [results, setResults] = useState<{ [key: string]: string }>({});
+
+  const [filter, setFilter] = useState<string>("");
+
+  const filteredTaglist = useMemo(() => {
+    if (filter === "") {
+      return taglist;
+    }
+    const r = new RegExp(filter);
+    return Object.entries(taglist).reduce((acc, [t, n]) => {
+      if (t.match(r)) {
+        acc[t] = n;
+      }
+      return acc;
+    }, {} as Items);
+  }, [filter, taglist]);
 
   const reset = useCallback(() => {
     setTaglist({});
@@ -100,10 +115,22 @@ const TagReplacer = () => {
         </Label>
         <SelectWrapper>
           <SelectOptions style={{ gridArea: "opt1" }}>
+            <Input
+              disabled={path === "" || isLoading}
+              icon={faFilter}
+              value={filter}
+              onChange={(e) => {
+                setFilter(e.currentTarget.value);
+              }}
+              onClear={() => setFilter("")}
+            />
             <Button
               disabled={path === "" || isLoading}
               onClick={() => {
-                setSelected(Object.keys(taglist));
+                setSelected((prev) => {
+                  const f = Object.keys(filteredTaglist).filter((a) => !prev.includes(a));
+                  return [...prev, ...f];
+                });
               }}
               title={"Select All"}
             >
@@ -112,7 +139,10 @@ const TagReplacer = () => {
             <Button
               disabled={path === "" || isLoading}
               onClick={() => {
-                setSelected([]);
+                const f = Object.keys(filteredTaglist);
+                setSelected((prev) => {
+                  return prev.filter((a) => !f.includes(a));
+                });
               }}
               title={"Select None"}
             >
@@ -121,7 +151,7 @@ const TagReplacer = () => {
           </SelectOptions>
           <ScrollPane style={{ gridArea: "input1" }}>
             <ListSelector
-              items={taglist}
+              items={filteredTaglist}
               disabled={path === "" || isLoading}
               selected={selected}
               onPick={(value: string) => {
@@ -137,7 +167,7 @@ const TagReplacer = () => {
             style={{ alignSelf: "center", gridArea: "arrow" }}
           />
           <ScrollPane style={{ gridArea: "input2" }}>
-            {Object.keys(taglist).map((t) => {
+            {Object.keys(filteredTaglist).map((t) => {
               const newValue = results[t] ?? t;
               return (
                 <TagRx key={t} className={newValue === t ? "unchanged" : "changed"}>
@@ -180,7 +210,12 @@ const TagReplacer = () => {
           className={"confirm"}
           onClick={() => {
             loadingBar.show();
-            ReplaceTags(path, matcher === "" ? ".*" : matcher, replace, selected)
+            ReplaceTags(
+              path,
+              matcher === "" ? ".*" : matcher,
+              replace,
+              selected.filter((a) => (filter === "" ? true : a in filteredTaglist))
+            )
               .then((changes) => {
                 if (changes.length > 0) {
                   changes.forEach((each) => {
@@ -225,7 +260,6 @@ const SelectWrapper = styled.div`
 `;
 
 const SelectOptions = styled.div`
-  justify-self: end;
   font-size: 0.75rem;
   display: flex;
   gap: 0.125rem;
