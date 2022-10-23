@@ -16,7 +16,7 @@ export default styled(({ icon, checked, className, disabled, children, ...props 
       <span className={"icon"}>
         <FontAwesomeIcon icon={icon ?? (checked ? faCheckSquare : faSquare)} className={`fa-fw`} />
       </span>
-      {children && <span>{children}</span>}
+      {children && <span className={"text"}>{children}</span>}
     </button>
   );
 })`
@@ -28,6 +28,10 @@ export default styled(({ icon, checked, className, disabled, children, ...props 
     color: var(--local-clr);
     --local-clr: var(--text-accent);
     --local-clr-hover: var(--text-accent-hover);
+    flex: 0 0 auto;
+  }
+  & > .text {
+    flex: 1 1 auto;
   }
   &:hover > .icon,
   &:focus-visible > .icon {

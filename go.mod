@@ -5,6 +5,7 @@ go 1.18
 require (
 	github.com/bmatcuk/doublestar/v4 v4.2.0
 	github.com/hpinc/go3mf v0.24.1
+	github.com/hschendel/stl v1.0.4
 	github.com/tidwall/sjson v1.2.5
 	github.com/wailsapp/wails/v2 v2.0.0
 )
