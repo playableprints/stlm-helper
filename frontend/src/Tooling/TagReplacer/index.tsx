@@ -115,7 +115,7 @@ const TagReplacer = () => {
         </Label>
         <SelectWrapper>
           <SelectOptions style={{ gridArea: "opt1" }}>
-            <Input
+            <RegexInput
               disabled={path === "" || isLoading}
               icon={faFilter}
               value={filter}
