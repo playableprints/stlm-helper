@@ -10,6 +10,7 @@ import TagReplacer from "./Tooling/TagReplacer";
 import Convert3mf from "./Tooling/Convert3mf";
 import useLoadingBar from "./Utility/loadingbar";
 import STLIntegrity from "./Tooling/STLIntegrity";
+import HoistFiles from "./Tooling/HoistFiles";
 
 function App() {
   const [, isLoading] = useLoadingBar();
@@ -23,6 +24,9 @@ function App() {
           title="Create folders from files and move them into their folder"
         >
           Explode Files to Folders
+        </MenuBar.Link>
+        <MenuBar.Link disabled={isLoading} to="/tools/hoistfiles" title="Move files to the root level">
+          Hoist Files
         </MenuBar.Link>
         <MenuBar.Link disabled={isLoading} to="/tools/tagreplacer" title="Replace tags across your library in bulk">
           Bulk Tag Replacer
@@ -40,6 +44,7 @@ function App() {
           <Route path={"/docs"} element={<Docs />} />
           <Route path={"/logs"} element={<LogView />} />
           <Route path={"/tools/filestofolder"} element={<FilesToFolders />} />
+          <Route path={"/tools/hoistfiles"} element={<HoistFiles />} />
           <Route path={"/tools/tagreplacer"} element={<TagReplacer />} />
           <Route path={"/tools/convert3mf"} element={<Convert3mf />} />
           <Route path={"/tools/stlintegrity"} element={<STLIntegrity />} />

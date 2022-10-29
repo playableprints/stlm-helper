@@ -9,6 +9,7 @@ import (
 	"stlmhelper/lib/convert3mf"
 	fe "stlmhelper/lib/folderexploder"
 	fsutil "stlmhelper/lib/fsutil"
+	"stlmhelper/lib/hoistfiles"
 	m "stlmhelper/lib/manifest"
 	"stlmhelper/lib/stlintegrity"
 )
@@ -35,6 +36,7 @@ func main() {
 			&fsutil.FSUtil{},
 			&convert3mf.Convert3mf{},
 			&stlintegrity.STLIntegrity{},
+			&hoistfiles.HoistFiles{},
 		},
 	})
 

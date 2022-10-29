@@ -5,3 +5,7 @@
 export function GetContents(arg1, arg2, arg3) {
   return window['go']['fsutil']['FSUtil']['GetContents'](arg1, arg2, arg3);
 }
+
+export function GetTree(arg1) {
+  return window['go']['fsutil']['FSUtil']['GetTree'](arg1);
+}

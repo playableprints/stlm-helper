@@ -1,4 +1,4 @@
-import { Prepare, ExplodeList } from "../../../wailsjs/go/folderexploder/Exploder";
+import { PreviewExplode, ExplodeList } from "../../../wailsjs/go/folderexploder/Exploder";
 import { GetContents } from "../../../wailsjs/go/fsutil/FSUtil";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import ToolTitle from "../../Components/layout/ToolTitle";
@@ -11,7 +11,6 @@ import RunButton from "../../Components/buttons/RunButton";
 import Label from "../../Components/layout/Label";
 import Input from "../../Components/inputs/Input";
 import ScrollPane from "../../Components/layout/ScrollPane";
-import FileTree, { IFileTree } from "../../Components/output/FileTree";
 import Panel from "../../Components/layout/Panel";
 import useLogger from "../../Utility/logger";
 import useNotifications from "../../Utility/notifications";
@@ -22,28 +21,14 @@ import useLoadingBar from "../../Utility/loadingbar";
 import styled from "styled-components";
 import Button from "../../Components/buttons/Button";
 import useDebounceCallback from "../../Utility/usedebouncecallback";
-
-const toTree = (h: { [key: string]: string[] }) => {
-  return Object.entries(h).map(([folder, files]) => {
-    return {
-      name: folder,
-      isFolder: true,
-      contents: files.map((f) => {
-        return {
-          name: f,
-          isFolder: false,
-          contents: null,
-        };
-      }),
-    };
-  }) as IFileTree[];
-};
+import FileTreeDisplay from "../../Components/output/FileTreeDisplay";
+import FileTree from "../../Utility/tree/filetree";
 
 const FilesToFolders = () => {
   const [path, setPath] = useState<string>("");
   const [filelist, setFileList] = useState<Items>({});
   const [selected, setSelected] = useState<string[]>([]);
-  const [hierarchy, setHierarchy] = useState<IFileTree[]>([]);
+  const [hierarchy, setHierarchy] = useState<FileTree | null>(null);
   const [matcher, setMatcher] = useState<string>("");
   const [replace, setReplace] = useState<string>("");
 
@@ -51,7 +36,7 @@ const FilesToFolders = () => {
     setPath("");
     setFileList({});
     setSelected([]);
-    setHierarchy([]);
+    setHierarchy(null);
     setFilter("");
   }, []);
 
@@ -80,16 +65,19 @@ const FilesToFolders = () => {
 
   const [preview] = useDebounceCallback((s: string[], m: string, r: string) => {
     if (s.length > 0) {
-      Prepare(s, m === "" ? ".*" : m, r === "" ? "$0" : r)
+      PreviewExplode(s, m === "" ? ".*" : m, r === "" ? "$0" : r)
         .then((h) => {
-          setHierarchy(toTree(h));
+          const n = FileTree.fromList(Object.values(h));
+          console.log(n.show());
+          setHierarchy(n);
         })
         .catch((e: Error) => {
           logger.error(e.name, e.message);
-          setHierarchy([]);
+          console.error(e);
+          setHierarchy(null);
         });
     } else {
-      setHierarchy([]);
+      setHierarchy(null);
     }
   }, 200);
 
@@ -187,7 +175,7 @@ const FilesToFolders = () => {
             style={{ alignSelf: "center", gridArea: "arrow" }}
           />
           <ScrollPane style={{ gridArea: "input2" }}>
-            <FileTree tree={hierarchy} />
+            <FileTreeDisplay tree={hierarchy} showRoot rootName={"(origin)"} />
           </ScrollPane>
         </SelectWrapper>
         <InputWrapper>
