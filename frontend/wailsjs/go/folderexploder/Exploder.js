@@ -13,3 +13,7 @@ export function ExplodeList(arg1, arg2, arg3, arg4) {
 export function Prepare(arg1, arg2, arg3) {
   return window['go']['folderexploder']['Exploder']['Prepare'](arg1, arg2, arg3);
 }
+
+export function PreviewExplode(arg1, arg2, arg3) {
+  return window['go']['folderexploder']['Exploder']['PreviewExplode'](arg1, arg2, arg3);
+}

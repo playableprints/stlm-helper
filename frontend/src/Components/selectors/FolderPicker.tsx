@@ -33,7 +33,7 @@ const FolderPicker = ({ onPick, onClear, onCancel, disabled, value, placeholder,
         <FontAwesomeIcon icon={faFolderOpen} />
       </LocalButton>
       <Value className={value === "" ? "empty" : ""} onClick={handleChange}>
-        {value === "" ? placeholder : value}
+        <span>{value === "" ? placeholder : value}</span>
       </Value>
       {onClear && (
         <IconButton disabled={disabled} tabIndex={-1} icon={faClose} className={"danger"} onClick={() => onClear()} />
@@ -83,9 +83,11 @@ const Value = styled.div`
   }
   white-space: nowrap;
   overflow-x: hidden;
-  direction: rtl;
-  text-overflow: ellipsis;
-  text-align: end;
+  display: flex;
+  justify-content: flex-end;
+  & > span {
+    flex: 1 0 min-content;
+  }
 `;
 
 export default FolderPicker;

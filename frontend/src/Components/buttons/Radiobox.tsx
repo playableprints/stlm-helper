@@ -1,39 +1,56 @@
 import { IconProp } from "@fortawesome/fontawesome-svg-core";
-import { faSquare } from "@fortawesome/free-regular-svg-icons";
-import { faCheckSquare } from "@fortawesome/free-solid-svg-icons";
+import { faCircle, faCircleDot } from "@fortawesome/free-regular-svg-icons";
+
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { ButtonHTMLAttributes, useCallback, MouseEvent } from "react";
 import styled from "styled-components";
 
 interface IProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   icon?: IconProp;
-  checked: boolean;
-  onPick?: (a: boolean) => void;
+  value: string;
+  target: string;
+  onPick?: (value: string) => void;
+  comparitor?: (a: any, b: any) => boolean;
 }
 
-export default styled(({ icon, checked, className, disabled, children, onClick, onPick, ...props }: IProps) => {
-  const handleClick = useCallback(
-    (e: MouseEvent<HTMLButtonElement>) => {
-      onClick && onClick(e);
-      onPick && onPick(!checked);
-    },
-    [onClick, onPick, checked]
-  );
+const DEFAULT_COMPARITOR = (a: any, b: any) => a === b;
 
-  return (
-    <button
-      {...props}
-      className={`${className ?? ""} ${checked && !disabled ? "checked" : ""}`}
-      disabled={disabled}
-      onClick={handleClick}
-    >
-      <span className={"icon"}>
-        <FontAwesomeIcon icon={icon ?? (checked ? faCheckSquare : faSquare)} className={`fa-fw`} />
-      </span>
-      {children && <span className={"text"}>{children}</span>}
-    </button>
-  );
-})`
+export default styled(
+  ({
+    icon,
+    value,
+    target,
+    comparitor = DEFAULT_COMPARITOR,
+    className,
+    disabled,
+    children,
+    onPick,
+    onClick,
+    ...props
+  }: IProps) => {
+    const checked = comparitor(value, target);
+    const handleClick = useCallback(
+      (e: MouseEvent<HTMLButtonElement>) => {
+        onClick && onClick(e);
+        onPick && onPick(target);
+      },
+      [onClick, onPick, target]
+    );
+    return (
+      <button
+        {...props}
+        className={`${className ?? ""} ${checked && !disabled ? "checked" : ""}`}
+        disabled={disabled}
+        onClick={handleClick}
+      >
+        <span className={"icon"}>
+          <FontAwesomeIcon icon={icon ?? (checked ? faCircleDot : faCircle)} className={`fa-fw`} />
+        </span>
+        {children && <span className={"text"}>{children}</span>}
+      </button>
+    );
+  }
+)`
   display: inline-flex;
   gap: 0.125rem;
   cursor: pointer;

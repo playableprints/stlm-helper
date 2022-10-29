@@ -36,6 +36,21 @@ func (e *Exploder) ExplodeList(path string, fileList []string, test string, repl
 	return retval
 }
 
+func (e *Exploder) PreviewExplode(fileList []string, test string, replace string) (map[string]string, error) {
+	result := make(map[string]string)
+	r, err := regexp.Compile(test)
+	if err != nil {
+		return nil, err
+	}
+	for _, f := range fileList {
+		ext := filepath.Ext(f)
+		basename := strings.TrimSuffix(f, ext)
+		dir := r.ReplaceAllString(basename, replace)
+		result[f] = "/" + dir + "/" + basename + ext
+	}
+	return result, nil
+}
+
 func (e *Exploder) Prepare(fileList []string, test string, replace string) map[string][]string {
 	result := make(map[string][]string)
 
@@ -43,18 +58,10 @@ func (e *Exploder) Prepare(fileList []string, test string, replace string) map[s
 	if err != nil {
 		fmt.Println(err.Error())
 	}
-	counterRegex, err := regexp.Compile("{(i+)}")
-	if err != nil {
-		fmt.Println(err.Error())
-	}
 
-	for i, f := range fileList {
+	for _, f := range fileList {
 		basename := strings.TrimSuffix(f, filepath.Ext(f))
-		counterLen := len(counterRegex.FindString(replace))
 		replaceToken := replace
-		if counterLen > 0 {
-			replaceToken = counterRegex.ReplaceAllString(replace, fmt.Sprintf("%0*d", counterLen-2, i+1))
-		}
 		dir := r.ReplaceAllString(basename, replaceToken)
 		if _, ok := result[dir]; !ok {
 			result[dir] = []string{}
