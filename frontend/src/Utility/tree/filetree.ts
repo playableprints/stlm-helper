@@ -1,4 +1,5 @@
 import { faSquareHackerNews } from "@fortawesome/free-brands-svg-icons";
+import { Children } from "react";
 import natsort from "../natsort";
 import AbstractTree from "./abstract";
 
@@ -22,32 +23,95 @@ const getName = (fullName: string) => {
   return [fullName, ""];
 };
 
+type NestedElement = {
+  name: string;
+  full: string;
+  children: NestedElement[];
+  isFolder: boolean;
+};
+
+const collapse = (n: FileTree, delim: string, tree: NestedElement, parent: string) => {
+  if (tree.isFolder) {
+    tree.name = tree.name + delim;
+    tree.full = tree.full + delim;
+    if (tree.children.length === 1) {
+      if (tree.children[0].isFolder) {
+        tree.name = tree.name + tree.children[0].name;
+        tree.full = tree.children[0].full;
+        tree.children = tree.children[0].children;
+        collapse(n, delim, tree, parent);
+      } else {
+        n.append(tree.full, { isFolder: true, name: tree.name }, parent);
+        const [name, ext] = getName(tree.children[0].name);
+        n.append(tree.children[0].full, { isFolder: false, name, ext }, tree.full);
+      }
+    } else {
+      n.append(tree.full, { isFolder: true, name: tree.name }, parent);
+      tree.children.forEach((c) => {
+        if (c.isFolder) {
+          collapse(n, delim, c, tree.full);
+        } else {
+          const [name, ext] = getName(c.name);
+          n.append(c.full, { isFolder: false, name, ext }, tree.full);
+        }
+      });
+    }
+  }
+};
+
 export default class FileTree extends AbstractTree<File | Folder> {
-  static fromList(list: string[], delim: string = "/") {
+  static fromList(list: string[], delim: string = "/", condense: boolean = false) {
     const n = new FileTree(delim, { isFolder: true, name: delim });
     list.sort(natsort);
+
+    if (condense) {
+      const result = [] as NestedElement[];
+      list.forEach((path) => {
+        let c = result;
+        path
+          .split(delim)
+          .slice(1, path.endsWith(delim) ? -1 : undefined)
+          .forEach((part, i, arr) => {
+            const existing = c.find((o) => o.name === part);
+            if (existing) {
+              c = existing.children;
+            } else {
+              const n = {
+                name: part,
+                children: [],
+                full: delim + arr.slice(0, i + 1).join(delim),
+                isFolder: i !== arr.length - 1 || path.endsWith(delim),
+              };
+              c.push(n);
+              c = n.children;
+            }
+          });
+      });
+      result.forEach((child) => {
+        collapse(n, delim, child, delim);
+      });
+      return n;
+    }
 
     list.forEach((id) => {
       const isFolder = id.endsWith(delim);
       const chunks = id.split(delim).slice(0, isFolder ? -1 : undefined);
       if (chunks.length > 0) {
         const fullName = chunks.pop();
-        console.log(chunks);
         chunks.forEach((segment, i, arr) => {
-          console.log(segment, arr);
           if (i > 0) {
-            const parent = arr.slice(0, i).join("/") + "/";
-            const thisFolder = parent + segment + "/";
+            const parent = arr.slice(0, i).join(delim) + delim;
+            const thisFolder = parent + segment + delim;
             if (!n.has(thisFolder)) {
               n.append(thisFolder, { isFolder: true, name: segment }, parent);
             }
           }
         });
         if (isFolder) {
-          const p = chunks.join("/") + "/";
+          const p = chunks.join(delim) + delim;
           n.append(id, { isFolder: true, name: fullName! }, p);
         } else {
-          const p = chunks.join("/") + "/";
+          const p = chunks.join(delim) + delim;
           const [basename, ext] = getName(fullName!);
           n.append(id, { isFolder: false, name: basename!, ext }, p);
         }
