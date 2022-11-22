@@ -27,15 +27,14 @@ type NestedElement = {
   name: string;
   full: string;
   children: NestedElement[];
-  isFolder: boolean;
 };
 
 const collapse = (n: FileTree, delim: string, tree: NestedElement, parent: string) => {
-  if (tree.isFolder) {
+  if (tree.name.endsWith(delim)) {
     tree.name = tree.name + delim;
     tree.full = tree.full + delim;
     if (tree.children.length === 1) {
-      if (tree.children[0].isFolder) {
+      if (tree.children[0].name.endsWith(delim)) {
         tree.name = tree.name + tree.children[0].name;
         tree.full = tree.children[0].full;
         tree.children = tree.children[0].children;
@@ -48,7 +47,7 @@ const collapse = (n: FileTree, delim: string, tree: NestedElement, parent: strin
     } else {
       n.append(tree.full, { isFolder: true, name: tree.name }, parent);
       tree.children.forEach((c) => {
-        if (c.isFolder) {
+        if (c.name.endsWith(delim)) {
           collapse(n, delim, c, tree.full);
         } else {
           const [name, ext] = getName(c.name);
@@ -72,15 +71,15 @@ export default class FileTree extends AbstractTree<File | Folder> {
           .split(delim)
           .slice(1, path.endsWith(delim) ? -1 : undefined)
           .forEach((part, i, arr) => {
-            const existing = c.find((o) => o.name === part);
+            const name = part + (i !== arr.length - 1 || path.endsWith(delim) ? delim : "");
+            const existing = c.find((o) => o.name === name);
             if (existing) {
               c = existing.children;
             } else {
               const n = {
-                name: part,
+                name,
                 children: [],
                 full: delim + arr.slice(0, i + 1).join(delim),
-                isFolder: i !== arr.length - 1 || path.endsWith(delim),
               };
               c.push(n);
               c = n.children;
