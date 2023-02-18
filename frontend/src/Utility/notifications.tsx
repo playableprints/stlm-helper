@@ -40,11 +40,11 @@ type IReducerArgs =
 const CTX = createContext<INoticeControls>({
   clear: () => {},
   remove: () => {},
-  info: () => {},
-  warning: () => {},
-  error: () => {},
-  help: () => {},
-  confirm: () => {},
+  info: () => "",
+  warning: () => "",
+  error: () => "",
+  help: () => "",
+  confirm: () => "",
 });
 
 const genId = () => {
@@ -239,11 +239,11 @@ const Container = styled((props: HTMLAttributes<HTMLDivElement>) => {
 export type INoticeControls = {
   clear: () => void;
   remove: (id: string) => void;
-  info: (message: ReactNode, title?: string | null, duration?: number) => void;
-  warning: (message: ReactNode, title?: string | null, duration?: number) => void;
-  error: (message: ReactNode, title?: string | null, duration?: number) => void;
-  help: (message: ReactNode, title?: string | null, duration?: number) => void;
-  confirm: (message: ReactNode, title?: string | null, duration?: number) => void;
+  info: (message: ReactNode, title?: string | null, duration?: number) => string;
+  warning: (message: ReactNode, title?: string | null, duration?: number) => string;
+  error: (message: ReactNode, title?: string | null, duration?: number) => string;
+  help: (message: ReactNode, title?: string | null, duration?: number) => string;
+  confirm: (message: ReactNode, title?: string | null, duration?: number) => string;
 };
 
 export const NotificationProvider = ({
@@ -281,6 +281,7 @@ export const NotificationProvider = ({
             title: title ?? undefined,
           },
         });
+        return id;
       },
       warning: (message: ReactNode, title: string | null = null, duration: number = defaultDuration) => {
         const id = genId();
@@ -300,6 +301,7 @@ export const NotificationProvider = ({
             title: title ?? undefined,
           },
         });
+        return id;
       },
       error: (message: ReactNode, title: string | null = null, duration: number = defaultDuration) => {
         const id = genId();
@@ -319,6 +321,7 @@ export const NotificationProvider = ({
             title: title ?? undefined,
           },
         });
+        return id;
       },
       help: (message: ReactNode, title: string | null = null, duration: number = defaultDuration) => {
         const id = genId();
@@ -338,6 +341,7 @@ export const NotificationProvider = ({
             title: title ?? undefined,
           },
         });
+        return id;
       },
       confirm: (message: ReactNode, title: string | null = null, duration: number = defaultDuration) => {
         const id = genId();
@@ -357,6 +361,7 @@ export const NotificationProvider = ({
             title: title ?? undefined,
           },
         });
+        return id;
       },
     };
   }, [defaultDuration]);

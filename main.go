@@ -33,10 +33,12 @@ func main() {
 			app,
 			&fe.Exploder{},
 			&m.Tags{},
+			&m.Attributes{},
 			&fsutil.FSUtil{},
 			&convert3mf.Convert3mf{},
 			&stlintegrity.STLIntegrity{},
 			&hoistfiles.HoistFiles{},
+			&m.Manifest{},
 		},
 	})
 

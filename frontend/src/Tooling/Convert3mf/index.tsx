@@ -155,7 +155,7 @@ const Convert3mf = () => {
           onClick={() => {
             const theOutpath = outpath === "" ? path : outpath;
             loadingBar.show();
-            notifications.info(
+            const startId = notifications.info(
               <>
                 Converting {filteredSelection.length} {filteredSelection.length === 1 ? "STL" : "STLs"}. This might take
                 a little while.
@@ -164,6 +164,7 @@ const Convert3mf = () => {
             );
             ConvertMany(path, filteredSelection, theOutpath)
               .then((res) => {
+                notifications.remove(startId);
                 loadingBar.hide();
                 let success = true;
                 Object.entries(res).forEach(([file, { Success, Message }]) => {
