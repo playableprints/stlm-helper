@@ -1,38 +1,66 @@
-import { faArrowRight, faChevronRight, faFilter } from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { useCallback, useEffect, useMemo, useState } from "react";
-import Panel from "../../Components/layout/Panel";
-import ScrollPane from "../../Components/layout/ScrollPane";
-import ToolTitle from "../../Components/layout/ToolTitle";
-import FolderPicker from "../../Components/selectors/FolderPicker";
-import ListSelector, { Items } from "../../Components/selectors/ListSelector";
 import useLoadingBar from "../../Utility/loadingbar";
 import useLogger from "../../Utility/logger";
 import useNotifications from "../../Utility/notifications";
-import { FindTags, PreviewReplace, ReplaceTags } from "../../../wailsjs/go/manifest/Tags";
 import styled from "styled-components";
-import Button from "../../Components/buttons/Button";
+import { useState, useCallback, useMemo } from "react";
+import FolderPicker from "../../Components/selectors/FolderPicker";
+import { ConvertTagsToAttributes } from "../../../wailsjs/go/manifest/Attributes";
 import Label from "../../Components/layout/Label";
-import Input from "../../Components/inputs/Input";
-import RegexInput from "../../Components/inputs/RegexInput";
-import RunButton from "../../Components/buttons/RunButton";
+import ToolTitle from "../../Components/layout/ToolTitle";
+import Panel from "../../Components/layout/Panel";
+import ListSelector, { Items } from "../../Components/selectors/ListSelector";
+import { FindTags } from "../../../wailsjs/go/manifest/Tags";
 import natsort from "../../Utility/natsort";
-import useDebounceCallback from "../../Utility/usedebouncecallback";
+import { faFilter } from "@fortawesome/free-solid-svg-icons";
+import Button from "../../Components/buttons/Button";
+import RegexInput from "../../Components/inputs/RegexInput";
+import ScrollPane from "../../Components/layout/ScrollPane";
+import Input from "../../Components/inputs/Input";
+import RunButton from "../../Components/buttons/RunButton";
 
-const TagReplacer = () => {
+const TagToAttribute = () => {
   const [loadingBar, isLoading] = useLoadingBar();
   const notifications = useNotifications();
-  const logger = useLogger("TagReplacer");
+  const logger = useLogger("TagToAttribute");
 
   const [taglist, setTaglist] = useState<Items>({});
   const [selected, setSelected] = useState<string[]>([]);
   const [path, setPath] = useState<string>("");
 
-  const [matcher, setMatcher] = useState<string>("");
-  const [replace, setReplace] = useState<string>("");
-  const [results, setResults] = useState<{ [key: string]: string }>({});
-
   const [filter, setFilter] = useState<string>("");
+  const [delim, setDelim] = useState<string>("");
+
+  const load = useCallback((v: string, setAll: boolean = false) => {
+    setPath(v);
+    if (v) {
+      loadingBar.show();
+      FindTags(v).then((list: string[]) => {
+        list.sort(natsort);
+        if (setAll) {
+          setSelected(list);
+        } else {
+          setSelected((p) => {
+            return p.filter((a) => list.includes(a));
+          });
+        }
+        setTaglist(
+          list.reduce((acc, e) => {
+            if (e !== "") {
+              acc[e] = e;
+            }
+            return acc;
+          }, {} as Items)
+        );
+        loadingBar.hide();
+      });
+    }
+  }, []);
+
+  const reset = useCallback(() => {
+    setTaglist({});
+    setPath("");
+    setFilter("");
+  }, []);
 
   const filteredTaglist = useMemo(() => {
     if (filter === "") {
@@ -47,70 +75,13 @@ const TagReplacer = () => {
     }, {} as Items);
   }, [filter, taglist]);
 
-  const reset = useCallback(() => {
-    setTaglist({});
-    setResults({});
-    setPath("");
-    setFilter("");
-  }, []);
-
-  const load = useCallback((v: string, setAll: boolean = false) => {
-    setPath(v);
-    if (v) {
-      loadingBar.show();
-      FindTags(v)
-        .then((list: string[]) => {
-          list.sort(natsort);
-          if (setAll) {
-            setSelected(list);
-          } else {
-            setSelected((p) => {
-              return p.filter((a) => list.includes(a));
-            });
-          }
-          setTaglist(
-            list.reduce((acc, e) => {
-              if (e !== "") {
-                acc[e] = e;
-              }
-              return acc;
-            }, {} as Items)
-          );
-          loadingBar.hide();
-        })
-        .catch((e: Error) => {
-          logger.error(e.name, e.message);
-          loadingBar.hide();
-        });
-    }
-  }, []);
-
   const filteredSelection = useMemo(() => {
     return selected.filter((a) => (filter === "" ? true : a in filteredTaglist));
   }, [selected, filter, filteredTaglist]);
 
-  const [preview] = useDebounceCallback((s: string[], p: string, m: string, r: string) => {
-    if (s.length > 0 && p !== "" && (r !== "" || m !== "")) {
-      PreviewReplace(s, m === "" ? ".*" : m, r)
-        .then((result) => {
-          setResults(result);
-        })
-        .catch((e: Error) => {
-          logger.error(e.name, e.message);
-          setResults({});
-        });
-    } else {
-      setResults({});
-    }
-  }, 200);
-
-  useEffect(() => {
-    preview(filteredSelection, path, matcher, replace);
-  }, [path, filteredSelection, matcher, replace]);
-
   return (
     <>
-      <ToolTitle>Bulk Tag Replacer</ToolTitle>
+      <ToolTitle>Tag to Attribute Converter</ToolTitle>
       <Panel>
         <Label text={"Directory"} help={"Select a folder from which to collect tags"}>
           <FolderPicker
@@ -170,47 +141,15 @@ const TagReplacer = () => {
               }}
             />
           </ScrollPane>
-          <FontAwesomeIcon
-            icon={faChevronRight}
-            className={"fa-fw"}
-            style={{ alignSelf: "center", gridArea: "arrow" }}
-          />
-          <ScrollPane style={{ gridArea: "input2" }}>
-            {Object.keys(filteredTaglist).map((t) => {
-              const newValue = results[t] ?? t;
-              return (
-                <TagRx key={t} className={newValue === t ? "unchanged" : "changed"}>
-                  {newValue === "" ? <>&nbsp;</> : newValue ?? t}
-                </TagRx>
-              );
-            })}
-          </ScrollPane>
         </SelectWrapper>
         <InputWrapper>
-          <Label text="Match" help={"RegExp to group filenames"}>
-            <RegexInput
-              value={matcher}
-              onChange={(e) => {
-                setMatcher(e.currentTarget.value);
-              }}
-              placeholder={".*"}
-              onClear={() => setMatcher("")}
-              disabled={isLoading}
-            />
-          </Label>
-          <FontAwesomeIcon icon={faArrowRight} className={"fa-fw"} />
-          <Label
-            text="Replace"
-            help={
-              "Replace the matched text with this. captured regex can be accessed with '$n' ('$0' is the entire value)"
-            }
-          >
+          <Label text="Delimiter" help={"The character(s) on which to split a tag into a key-value pair"}>
             <Input
-              value={replace}
+              value={delim}
               onChange={(e) => {
-                setReplace(e.currentTarget.value);
+                setDelim(e.currentTarget.value);
               }}
-              onClear={() => setReplace("")}
+              onClear={() => setDelim("")}
               disabled={isLoading}
             />
           </Label>
@@ -223,16 +162,16 @@ const TagReplacer = () => {
               <>Depending on the size of the library you've selected, this might take a little while</>,
               "Hang Tight"
             );
-            ReplaceTags(path, matcher === "" ? ".*" : matcher, replace, filteredSelection)
+            ConvertTagsToAttributes(path, delim, filteredSelection)
               .then((changes) => {
                 notifications.remove(startId);
                 if (changes.length > 0) {
                   changes.forEach((each) => {
-                    logger.success(`changed '${each.From}' to '${each.To}' in '${each.In}'`);
+                    logger.success(`found and converted ${each.To} in ${each.In}`);
                   });
                   notifications.confirm(
                     <>
-                      {changes.length} tag {changes.length === 1 ? "entry" : "entries"} changed
+                      {changes.length} {changes.length === 1 ? "tag" : "tags"} converted
                     </>,
                     "Success!"
                   );
@@ -249,7 +188,7 @@ const TagReplacer = () => {
                 loadingBar.hide();
               });
           }}
-          disabled={filteredSelection.length <= 0 || path === "" || (matcher === "" && replace === "") || isLoading}
+          disabled={filteredSelection.length <= 0 || path === "" || delim === "" || isLoading}
         >
           Go!
         </RunButton>
@@ -258,14 +197,14 @@ const TagReplacer = () => {
   );
 };
 
-export default TagReplacer;
+export default TagToAttribute;
 
 const SelectWrapper = styled.div`
   display: grid;
-  grid-template-columns: 1fr auto 1fr;
+  grid-template-columns: 1fr;
   grid-template-rows: auto 1fr;
   height: 50vh;
-  grid-template-areas: "opt1 . opt2" "input1 arrow input2";
+  grid-template-areas: "opt1" "input1";
 `;
 
 const SelectOptions = styled.div`
@@ -277,7 +216,7 @@ const SelectOptions = styled.div`
 
 const InputWrapper = styled.div`
   display: grid;
-  grid-template-columns: 1fr auto 1fr;
+  grid-template-columns: 1fr;
 `;
 
 const TagRx = styled.div`
