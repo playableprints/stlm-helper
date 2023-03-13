@@ -56,29 +56,39 @@ func (c *Tags) ReplaceTags(root string, match string, replace string, include []
 
 	for path, manifest := range manifests {
 		changed := false
-		for i, t := range manifest.Scancfg.Tags.Include {
+
+		toSetInclude := make([]string, 0)
+
+		for _, t := range manifest.Scancfg.Tags.Include {
 			if val, ok := toChange[t]; ok {
-				if val != t {
-					changed = true
-					manifest.Scancfg.Tags.Include[i] = val
-					res := status{t, val, path + ":scancfg.tags.include"}
-					result = append(result, res)
+				changed = true
+				if val != "" {
+					toSetInclude = append(toSetInclude, val)
 				}
+				res := status{t, val, path + ":scancfg.tags.include"}
+				result = append(result, res)
+			} else {
+				toSetInclude = append(toSetInclude, t)
 			}
 		}
+		toSetTags := make([]string, 0)
 
-		for i, t := range manifest.ModelMeta.Tags {
+		for _, t := range manifest.ModelMeta.Tags {
 			if val, ok := toChange[t]; ok {
-				if val != t {
-					changed = true
-					manifest.ModelMeta.Tags[i] = val
-					res := status{t, val, path + ":modelmeta.tags"}
-					result = append(result, res)
+				changed = true
+				if val != "" {
+					toSetTags = append(toSetTags, val)
 				}
+				res := status{t, val, path + ":modelmeta.tags"}
+				result = append(result, res)
+			} else {
+				toSetTags = append(toSetTags, t)
 			}
 		}
 
 		if changed {
+			manifest.Scancfg.Tags.Include = toSetInclude
+			manifest.ModelMeta.Tags = toSetTags
 			err := WriteManifest(path, manifest)
 			if err != nil {
 				return result, err
