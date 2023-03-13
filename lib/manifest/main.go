@@ -98,17 +98,42 @@ type iManifestV4 struct {
 	ModelMeta modelMetaV4 `json:"modelmeta"`
 }
 
+type scanCfgV5 struct {
+	ModelMode   int        `json:"modelmode"`
+	FileMode    int        `json:"fileMode"`
+	FileTypes   []int      `json:"filetypes"`
+	IfLeaf      bool       `json:"ifLeaf"`
+	Tags        tagConfig  `json:"tags"`
+	Attributes  attrConfig `json:"attributes"`
+	Propagation int        `json:"propagation"`
+}
+
+type modelMetaV5 struct {
+	Name        *string        `json:"name"`
+	Notes       string         `json:"notes"`
+	Tags        []string       `json:"tags"`
+	Cover       *string        `json:"cover"`
+	Collections []string       `json:"collections"`
+	Attributes  []attrInstance `json:"attributes"`
+}
+
+type iManifestV5 struct {
+	Version   int         `json:"version"`
+	Scancfg   scanCfgV5   `json:"scancfg"`
+	ModelMeta modelMetaV5 `json:"modelmeta"`
+}
+
 type unknownManifest struct {
 	Version int `json:"version"`
 }
 
-func (c *Manifest) GetAllManifests(root string) (map[string]iManifestV4, error) {
+func (c *Manifest) GetAllManifests(root string) (map[string]iManifestV5, error) {
 	return GetAllManifests(root)
 }
 
-func GetAllManifests(root string) (map[string]iManifestV4, error) {
+func GetAllManifests(root string) (map[string]iManifestV5, error) {
 	fsys := os.DirFS(root)
-	var result = make(map[string]iManifestV4)
+	var result = make(map[string]iManifestV5)
 	err := doublestar.GlobWalk(fsys, "**/{user.json,config.orynt3d}", func(mPath string, d fs.DirEntry) error {
 		var nPath = filepath.Join(root, filepath.Dir(mPath))
 		m, err := ReadManifest(nPath)
@@ -159,7 +184,7 @@ func (c *Manifest) MigrateManifests(root string) ([]string, error) {
 	return result, nil
 }
 
-func ReadManifest(root string) (*iManifestV4, error) {
+func ReadManifest(root string) (*iManifestV5, error) {
 	fsys := os.DirFS(root)
 	content, err := fs.ReadFile(fsys, "config.orynt3d")
 	if err != nil {
@@ -171,11 +196,11 @@ func ReadManifest(root string) (*iManifestV4, error) {
 	return toLatestManifest(content)
 }
 
-func (c *Manifest) ReadManifest(root string) (*iManifestV4, error) {
+func (c *Manifest) ReadManifest(root string) (*iManifestV5, error) {
 	return ReadManifest(root)
 }
 
-func WriteManifest(root string, manifest iManifestV4) error {
+func WriteManifest(root string, manifest iManifestV5) error {
 	newjson, err := json.Marshal(manifest)
 	if err != nil {
 		return err
@@ -187,11 +212,11 @@ func WriteManifest(root string, manifest iManifestV4) error {
 	return nil
 }
 
-func (c *Manifest) WriteManifest(root string, manifest iManifestV4) error {
+func (c *Manifest) WriteManifest(root string, manifest iManifestV5) error {
 	return WriteManifest(root, manifest)
 }
 
-func toLatestManifest(content []byte) (*iManifestV4, error) {
+func toLatestManifest(content []byte) (*iManifestV5, error) {
 	var temp unknownManifest
 	err := json.Unmarshal(content, &temp)
 	if err != nil {
@@ -203,7 +228,7 @@ func toLatestManifest(content []byte) (*iManifestV4, error) {
 		if err != nil {
 			return nil, err
 		}
-		res := v1tov4(v1)
+		res := v1toLatest(v1)
 		return &res, nil
 	}
 	if temp.Version == 2 {
@@ -212,7 +237,7 @@ func toLatestManifest(content []byte) (*iManifestV4, error) {
 		if err != nil {
 			return nil, err
 		}
-		res := v2tov4(v2)
+		res := v2toLatest(v2)
 		return &res, nil
 	}
 	if temp.Version == 3 {
@@ -221,7 +246,7 @@ func toLatestManifest(content []byte) (*iManifestV4, error) {
 		if err != nil {
 			return nil, err
 		}
-		res := v3tov4(v3)
+		res := v3toLatest(v3)
 		return &res, nil
 	}
 	if temp.Version == 4 {
@@ -230,12 +255,21 @@ func toLatestManifest(content []byte) (*iManifestV4, error) {
 		if err != nil {
 			return nil, err
 		}
-		return &v4, nil
+		res := v4toLatest(v4)
+		return &res, nil
+	}
+	if temp.Version == 5 {
+		var v5 iManifestV5
+		err = json.Unmarshal(content, &v5)
+		if err != nil {
+			return nil, err
+		}
+		return &v5, nil
 	}
 	return nil, errors.New("unknown version")
 }
 
-func v1tov4(input iManifestV1) iManifestV4 {
+func v1toLatest(input iManifestV1) iManifestV5 {
 	var res = defaultManifest()
 	res.Scancfg.Tags.Include = input.Include
 	res.Scancfg.Tags.Exclude = input.Exclude
@@ -243,7 +277,7 @@ func v1tov4(input iManifestV1) iManifestV4 {
 	return res
 }
 
-func v2tov4(input iManifestV2) iManifestV4 {
+func v2toLatest(input iManifestV2) iManifestV5 {
 	var res = defaultManifest()
 
 	res.ModelMeta.Name = input.ModelMeta.Name
@@ -276,7 +310,7 @@ func v2tov4(input iManifestV2) iManifestV4 {
 	return res
 }
 
-func v3tov4(input iManifestV3) iManifestV4 {
+func v3toLatest(input iManifestV3) iManifestV5 {
 	var res = defaultManifest()
 
 	res.Scancfg.ModelMode = input.Scancfg.ModelMode
@@ -301,22 +335,34 @@ func v3tov4(input iManifestV3) iManifestV4 {
 		Exclude: input.Scancfg.Exclude,
 		Clear:   input.Scancfg.ClearTags,
 	}
-
 	return res
 }
 
-func defaultManifest() iManifestV4 {
-	return iManifestV4{
-		Version: 4,
-		Scancfg: scanCfgV4{
-			ModelMode:  0,
-			FileMode:   0,
-			FileTypes:  []int{1},
-			IfLeaf:     false,
-			Tags:       tagConfig{Include: []string{}, Exclude: []string{}, Clear: false},
-			Attributes: attrConfig{Include: []attrInstance{}, Exclude: []string{}, Clear: false},
+func v4toLatest(input iManifestV4) iManifestV5 {
+	var res = defaultManifest()
+	res.Scancfg.Attributes = input.Scancfg.Attributes
+	res.Scancfg.Tags = input.Scancfg.Tags
+	res.Scancfg.FileMode = input.Scancfg.FileMode
+	res.Scancfg.FileTypes = input.Scancfg.FileTypes
+	res.Scancfg.ModelMode = input.Scancfg.ModelMode
+	res.Scancfg.IfLeaf = input.Scancfg.IfLeaf
+	res.ModelMeta = modelMetaV5(input.ModelMeta)
+	return res
+}
+
+func defaultManifest() iManifestV5 {
+	return iManifestV5{
+		Version: 5,
+		Scancfg: scanCfgV5{
+			ModelMode:   0,
+			FileMode:    0,
+			FileTypes:   []int{1},
+			IfLeaf:      false,
+			Tags:        tagConfig{Include: []string{}, Exclude: []string{}, Clear: false},
+			Attributes:  attrConfig{Include: []attrInstance{}, Exclude: []string{}, Clear: false},
+			Propagation: 0,
 		},
-		ModelMeta: modelMetaV4{
+		ModelMeta: modelMetaV5{
 			Name:        nil,
 			Notes:       "",
 			Tags:        []string{},

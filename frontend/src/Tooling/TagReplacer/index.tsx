@@ -179,8 +179,8 @@ const TagReplacer = () => {
             {Object.keys(filteredTaglist).map((t) => {
               const newValue = results[t] ?? t;
               return (
-                <TagRx key={t} className={newValue === t ? "unchanged" : "changed"}>
-                  {newValue === "" ? <>&nbsp;</> : newValue ?? t}
+                <TagRx key={t} className={newValue === "" ? "deleted" : newValue === t ? "unchanged" : "changed"}>
+                  {newValue === "" ? <ToDelete>[will be deleted]</ToDelete> : newValue ?? t}
                 </TagRx>
               );
             })}
@@ -202,7 +202,7 @@ const TagReplacer = () => {
           <Label
             text="Replace"
             help={
-              "Replace the matched text with this. captured regex can be accessed with '$n' ('$0' is the entire value)"
+              "Replace the matched text with this. captured regex can be accessed with '$n' ('$0' is the entire value). empty strings will be deleted."
             }
           >
             <Input
@@ -287,4 +287,12 @@ const TagRx = styled.div`
     color: var(--text-emphasis);
     background-color: var(--bg-emphasis);
   }
+  &.deleted {
+    color: var(--text-danger);
+    background-color: var(--bg-danger);
+  }
+`;
+
+const ToDelete = styled.span`
+  font-style: italic;
 `;
