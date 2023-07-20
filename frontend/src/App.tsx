@@ -14,6 +14,7 @@ import HoistFiles from "./Tooling/HoistFiles";
 import TagToAttribute from "./Tooling/TagToAttribute";
 import ConvertManifest from "./Tooling/MigrateManifest";
 import MigrateManifest from "./Tooling/MigrateManifest";
+import RenameAttrKeys from "./Tooling/RenameAttrKeys";
 
 function App() {
   const [, isLoading] = useLoadingBar();
@@ -37,6 +38,13 @@ function App() {
         <MenuBar.Link disabled={isLoading} to="/tools/tagreplacer" title="Replace tags across your library in bulk">
           Bulk Tag Replacer
         </MenuBar.Link>
+        <MenuBar.Link
+          disabled={isLoading}
+          to="/tools/renameattrkeys"
+          title="Rename attribute keys across your library in bulk"
+        >
+          Rename Attribute Keys
+        </MenuBar.Link>
         <MenuBar.Link disabled={isLoading} to="/tools/tagtoattribute" title="Tag to Attribute">
           Tag to Attribute
         </MenuBar.Link>
@@ -54,6 +62,7 @@ function App() {
           <Route path={"/logs"} element={<LogView />} />
           <Route path={"/tools/filestofolder"} element={<FilesToFolders />} />
           <Route path={"/tools/hoistfiles"} element={<HoistFiles />} />
+          <Route path={"/tools/renameattrkeys"} element={<RenameAttrKeys />} />
           <Route path={"/tools/tagreplacer"} element={<TagReplacer />} />
           <Route path={"/tools/tagtoattribute"} element={<TagToAttribute />} />
           <Route path={"/tools/migratemanifest"} element={<MigrateManifest />} />
