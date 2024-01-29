@@ -10,6 +10,10 @@ export function FindAttributeKeys(arg1) {
   return window['go']['manifest']['Attributes']['FindAttributeKeys'](arg1);
 }
 
+export function PreviewConvertTagsToAttributes(arg1, arg2, arg3) {
+  return window['go']['manifest']['Attributes']['PreviewConvertTagsToAttributes'](arg1, arg2, arg3);
+}
+
 export function PreviewReplaceKeys(arg1, arg2, arg3) {
   return window['go']['manifest']['Attributes']['PreviewReplaceKeys'](arg1, arg2, arg3);
 }

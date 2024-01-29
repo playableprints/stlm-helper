@@ -11,12 +11,36 @@ type attrStatus struct {
 	Item string
 	In   string
 }
-
-func (c *Attributes) ConvertTagsToAttributes(root string, delim string, list []string) ([]attrStatus, error) {
-	return ConvertTagsToAttributes(root, delim, list)
+type attr struct {
+	Key string
+	Value string
 }
 
-func ConvertTagsToAttributes(root string, delim string, list []string) ([]attrStatus, error) {
+type attrConvPreview struct {
+	Result []attr
+	LeftBehind []string
+}
+
+
+func (c *Attributes) PreviewConvertTagsToAttributes(tags []string, delim string, list []string) (attrConvPreview, error) {
+	result := make([]attr, 0);
+	leftBehind := make([]string, 0);
+
+	for _,t := range tags {
+		if strings.Contains(t, delim) && contains(list, t) {
+			res := strings.SplitN(t, delim, 2)
+			var k = res[0];
+			var v = res[1];
+			result = append(result, attr{ Key: k, Value: v })
+		} else {
+			leftBehind = append(leftBehind, t);
+		}
+	}
+
+	return attrConvPreview{ Result: result, LeftBehind: leftBehind }, nil
+}
+
+func (c *Attributes) ConvertTagsToAttributes(root string, delim string, list []string) ([]attrStatus, error) {
 
 	result := make([]attrStatus, 0)
 

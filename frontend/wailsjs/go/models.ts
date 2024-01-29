@@ -1,46 +1,5 @@
 export namespace manifest {
 	
-	
-	export class modelMetaV5 {
-	    name?: string;
-	    notes: string;
-	    tags: string[];
-	    cover?: string;
-	    collections: string[];
-	    attributes: attrInstance[];
-	
-	    static createFrom(source: any = {}) {
-	        return new modelMetaV5(source);
-	    }
-	
-	    constructor(source: any = {}) {
-	        if ('string' === typeof source) source = JSON.parse(source);
-	        this.name = source["name"];
-	        this.notes = source["notes"];
-	        this.tags = source["tags"];
-	        this.cover = source["cover"];
-	        this.collections = source["collections"];
-	        this.attributes = this.convertValues(source["attributes"], attrInstance);
-	    }
-	
-		convertValues(a: any, classs: any, asMap: boolean = false): any {
-		    if (!a) {
-		        return a;
-		    }
-		    if (a.slice) {
-		        return (a as any[]).map(elem => this.convertValues(elem, classs));
-		    } else if ("object" === typeof a) {
-		        if (asMap) {
-		            for (const key of Object.keys(a)) {
-		                a[key] = new classs(a[key]);
-		            }
-		            return a;
-		        }
-		        return new classs(a);
-		    }
-		    return a;
-		}
-	}
 	export class attrInstance {
 	    key: string;
 	    value: string;
@@ -89,6 +48,49 @@ export namespace manifest {
 		    return a;
 		}
 	}
+	
+	
+	
+	export class modelMetaV5 {
+	    name?: string;
+	    notes: string;
+	    tags: string[];
+	    cover?: string;
+	    collections: string[];
+	    attributes: attrInstance[];
+	
+	    static createFrom(source: any = {}) {
+	        return new modelMetaV5(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.name = source["name"];
+	        this.notes = source["notes"];
+	        this.tags = source["tags"];
+	        this.cover = source["cover"];
+	        this.collections = source["collections"];
+	        this.attributes = this.convertValues(source["attributes"], attrInstance);
+	    }
+	
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
+	}
 	export class tagConfig {
 	    clear: boolean;
 	    include: string[];
@@ -106,7 +108,7 @@ export namespace manifest {
 	    }
 	}
 	export class scanCfgV5 {
-	    modelmode: number;
+	    modelMode: number;
 	    fileMode: number;
 	    filetypes: number[];
 	    ifLeaf: boolean;
@@ -120,7 +122,7 @@ export namespace manifest {
 	
 	    constructor(source: any = {}) {
 	        if ('string' === typeof source) source = JSON.parse(source);
-	        this.modelmode = source["modelmode"];
+	        this.modelMode = source["modelMode"];
 	        this.fileMode = source["fileMode"];
 	        this.filetypes = source["filetypes"];
 	        this.ifLeaf = source["ifLeaf"];
@@ -181,7 +183,6 @@ export namespace manifest {
 		    return a;
 		}
 	}
-	
 	
 	
 	

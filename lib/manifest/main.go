@@ -51,7 +51,7 @@ type iManifestV2 struct {
 }
 
 type scanCfgV3 struct {
-	ModelMode int      `json:"modelmode"`
+	ModelMode int      `json:"modelMode"`
 	FileMode  int      `json:"fileMode"`
 	FileTypes []int    `json:"filetypes"`
 	IfLeaf    bool     `json:"ifLeaf"`
@@ -75,7 +75,7 @@ type iManifestV3 struct {
 }
 
 type scanCfgV4 struct {
-	ModelMode  int        `json:"modelmode"`
+	ModelMode  int        `json:"modelMode"`
 	FileMode   int        `json:"fileMode"`
 	FileTypes  []int      `json:"filetypes"`
 	IfLeaf     bool       `json:"ifLeaf"`
@@ -99,7 +99,7 @@ type iManifestV4 struct {
 }
 
 type scanCfgV5 struct {
-	ModelMode   int        `json:"modelmode"`
+	ModelMode   int        `json:"modelMode"`
 	FileMode    int        `json:"fileMode"`
 	FileTypes   []int      `json:"filetypes"`
 	IfLeaf      bool       `json:"ifLeaf"`
