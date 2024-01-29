@@ -23,7 +23,7 @@ func main() {
 
 	// Create application with options
 	err := wails.Run(&options.App{
-		Title:            "Euler",
+		Title:            "Euler v1.9",
 		Width:            1024,
 		Height:           768,
 		Assets:           assets,

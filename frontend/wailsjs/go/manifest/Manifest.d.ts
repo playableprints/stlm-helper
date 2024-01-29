@@ -8,4 +8,4 @@ export function MigrateManifests(arg1:string):Promise<Array<string>>;
 
 export function ReadManifest(arg1:string):Promise<manifest.iManifestV5>;
 
-export function WriteManifest(arg1:string,arg2:manifest.iManifestV5):Promise<Error>;
+export function WriteManifest(arg1:string,arg2:manifest.iManifestV5):Promise<void>;

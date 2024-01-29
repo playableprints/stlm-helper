@@ -48,64 +48,7 @@ export namespace manifest {
 		    return a;
 		}
 	}
-	export class tagConfig {
-	    clear: boolean;
-	    include: string[];
-	    exclude: string[];
 	
-	    static createFrom(source: any = {}) {
-	        return new tagConfig(source);
-	    }
-	
-	    constructor(source: any = {}) {
-	        if ('string' === typeof source) source = JSON.parse(source);
-	        this.clear = source["clear"];
-	        this.include = source["include"];
-	        this.exclude = source["exclude"];
-	    }
-	}
-	export class scanCfgV5 {
-	    modelmode: number;
-	    fileMode: number;
-	    filetypes: number[];
-	    ifLeaf: boolean;
-	    tags: tagConfig;
-	    attributes: attrConfig;
-	    propagation: number;
-	
-	    static createFrom(source: any = {}) {
-	        return new scanCfgV5(source);
-	    }
-	
-	    constructor(source: any = {}) {
-	        if ('string' === typeof source) source = JSON.parse(source);
-	        this.modelmode = source["modelmode"];
-	        this.fileMode = source["fileMode"];
-	        this.filetypes = source["filetypes"];
-	        this.ifLeaf = source["ifLeaf"];
-	        this.tags = this.convertValues(source["tags"], tagConfig);
-	        this.attributes = this.convertValues(source["attributes"], attrConfig);
-	        this.propagation = source["propagation"];
-	    }
-	
-		convertValues(a: any, classs: any, asMap: boolean = false): any {
-		    if (!a) {
-		        return a;
-		    }
-		    if (a.slice) {
-		        return (a as any[]).map(elem => this.convertValues(elem, classs));
-		    } else if ("object" === typeof a) {
-		        if (asMap) {
-		            for (const key of Object.keys(a)) {
-		                a[key] = new classs(a[key]);
-		            }
-		            return a;
-		        }
-		        return new classs(a);
-		    }
-		    return a;
-		}
-	}
 	
 	
 	export class modelMetaV5 {
@@ -148,8 +91,64 @@ export namespace manifest {
 		    return a;
 		}
 	}
+	export class tagConfig {
+	    clear: boolean;
+	    include: string[];
+	    exclude: string[];
 	
+	    static createFrom(source: any = {}) {
+	        return new tagConfig(source);
+	    }
 	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.clear = source["clear"];
+	        this.include = source["include"];
+	        this.exclude = source["exclude"];
+	    }
+	}
+	export class scanCfgV5 {
+	    modelMode: number;
+	    fileMode: number;
+	    filetypes: number[];
+	    ifLeaf: boolean;
+	    tags: tagConfig;
+	    attributes: attrConfig;
+	    propagation: number;
+	
+	    static createFrom(source: any = {}) {
+	        return new scanCfgV5(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.modelMode = source["modelMode"];
+	        this.fileMode = source["fileMode"];
+	        this.filetypes = source["filetypes"];
+	        this.ifLeaf = source["ifLeaf"];
+	        this.tags = this.convertValues(source["tags"], tagConfig);
+	        this.attributes = this.convertValues(source["attributes"], attrConfig);
+	        this.propagation = source["propagation"];
+	    }
+	
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
+	}
 	export class iManifestV5 {
 	    version: number;
 	    scancfg: scanCfgV5;
@@ -184,6 +183,9 @@ export namespace manifest {
 		    return a;
 		}
 	}
+	
+	
+	
 
 }
 

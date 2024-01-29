@@ -60,7 +60,7 @@ const Menu = styled(({ children, ...props }: HTMLAttributes<HTMLDivElement>) => 
   const [, isLoading] = useLoadingBar();
   return (
     <div {...props}>
-      <Branding to={"/"}>Euler</Branding>
+      <Branding to={"/"}>Euler v1.9</Branding>
       {children}
       <Spacer />
       <Link disabled={isLoading} to={"/docs"}>
