@@ -1,54 +1,96 @@
 # stlm-helper
 
-## About this app
+Codename "Euler" (pronounced Oil-er), this application is a grab-bag of functions that didn't quite fit into the 3D model organiser [Orynt3D](www.orynt3d.com).
 
-## NOTE
+## Functions
 
-use `go install github.com/wailsapp/wails/v2/cmd/wails@2.0.0` when setting up wails. v2.1.0 of wails has a breaking bug.
+### Filesystem tools
 
-stlm-helper is a grab-bag of utilities for messing around with filesystems and 3D models, built from the React/Typescript template using [Wails](wails.io).
+ * Explode files to folders
 
-This repo builds a single executable that produces a UI to click buttons on.
+Takes a folder of files, creates subfolders based on the filenames, and relocates the files into the subfolders. Optionally configurable via regex.
 
-## Setting up a development environment
+Eg:
 
-Use the Wails instructions to setup and configure Go and Nodejs: https://wails.io/docs/gettingstarted/installation
+```
+/3dfiles
+    /animal.stl
+    /bicycle.stl
+    /car.stl
+```
 
-To get started once this repo is checked out:
+Can be converted to:
 
--   `cd frontend && npm install && npm run build`
--   `cd .. && wails dev`
+```
+/3dfiles
+    /animal
+        /animal.stl
+    /bicycle
+        /bicycle.stl
+    /car
+        /car.stl
+```
 
-## About Wails
+ * Hoist files
 
-You can configure the project by editing `wails.json`. More information about the project settings can be found here: https://wails.io/docs/reference/project-config
+ Takes a folder of files and subfolders, and relocates all files in all subfolders to the top-level folder. Optionally removes empty directories and renames file names to include folder names.
 
-## Live Development
+Eg:
 
-To run in live development mode, run `wails dev` in the project directory. This will run a Vite development
-server that will provide very fast hot reload of your frontend changes. If you want to develop in a browser
-and have access to your Go methods, there is also a dev server that runs on http://localhost:34115. Connect
-to this in your browser, and you can call your Go code from devtools.
+```
+/3dfiles
+    /animal
+        /animal.stl
+    /bicycle
+        /bicycle.stl
+    /car
+        /car.stl
+```
 
-## Building
+Can be converted to:
 
-To build a redistributable, production mode package, use `wails build`.
+```
+/3dfiles
+    /animal.stl
+    /bicycle.stl
+    /car.stl
+```
 
-`build.sh` generates timestamped binaries (relies on having bash shell available). Wails doesn't currently crosscompile from Windows -> Linux or Windows -> MacOS.
+### Orynt3D taxonomy tools
+
+ * Migrate manifests
+
+Manually upgrade Orynt3D manifest files (`user.json` and `orynt3d.config`) to their latest version.
+
+ * Bulk tag replacement
+
+Read a directory that contains manifest files, and rename the selected tags in place. The exact rename method is controlled via regex.
+
+ * Rename attribute keys
+
+Read a directory that contains manifest files, and rename the selected attribute keys in place. The exact rename method is controlled via regex.
+
+ * Tag to attribute
+
+Read a directory that contains manifest files, and convert tags to attributes, separated by a specified delimiter.
+
+### 3D file
+
+ * Convert STL to 3MF
+
+Read a directory that contains STL files and convert to 3MF files.
+
+ * STL integrity tester
+
+Read a directory that contains STL files and check them for integrity issues, such as inverted normals, duplicated edges and so on.
 
 ## Technical resources
+
+To get started developing on stlm-helper, check out the [development guide](doc/Development.md).
 
 -   https://go.dev
 -   https://nodejs.org/
 -   https://reactjs.org
 -   https://www.typescriptlang.org
 
-## License
-
-Copyright © 2022 Rob Mayer (rob@thatrobhuman.com), Pieter Sartain (piete@hyperrational.tech)
-
-Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the “Software”), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+Additional Go-related notes are included in the [golang notes](doc/Golang.md).
