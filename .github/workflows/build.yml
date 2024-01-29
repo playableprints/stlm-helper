@@ -1,0 +1,47 @@
+name: build-stlm-client
+on:
+  push:
+    tags:
+      - "v*" # Push events to matching v*, i.e. v1.0, v20.15.10
+jobs:
+  build_release:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        # os: [macos-latest]
+        # os: [windows-latest]
+        # os: [ubuntu-latest]
+    name: Build and release
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      # Pull the code
+      - name: Checkout client
+        uses: actions/checkout@v3
+
+      # Build
+      - name: Set up Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+          cache: npm
+
+      - name: Install dependencies
+        run: cd frontend && npm install
+
+      - name: Build Windows redistributable
+        if: matrix.os == 'windows-latest'
+        run: wails build -o euler-${{github.ref_name}}.exe
+
+      - name: Build Linux redistributable
+        if: matrix.os == 'ubuntu-latest'
+        run: wails build -o euler-${{github.ref_name}}
+
+      - name: Build Mac redistributable
+        if: matrix.os == 'macos-latest'
+        run: wails build -o euler-${{github.ref_name}}
+
+      # Release artefact via GH releases
+      - uses: ncipollo/release-action@v1
+        with:
+          artifacts: "*.exe"

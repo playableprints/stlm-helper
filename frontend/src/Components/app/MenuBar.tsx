@@ -5,6 +5,7 @@ import IconButton from "../buttons/IconButton";
 import { BrowserOpenURL } from "../../../wailsjs/runtime/runtime";
 import { faDiscord, faGithub } from "@fortawesome/free-brands-svg-icons";
 import useLoadingBar from "../../Utility/loadingbar";
+import {useVersion} from "../../Utility/useVersion";
 
 const Spacer = styled.div`
   flex: 1 1 auto;
@@ -58,9 +59,12 @@ const Branding = styled(NavLink)`
 
 const Menu = styled(({ children, ...props }: HTMLAttributes<HTMLDivElement>) => {
   const [, isLoading] = useLoadingBar();
+
+  const v = useVersion();
+
   return (
     <div {...props}>
-      <Branding to={"/"}>Euler v1.9</Branding>
+      <Branding to={"/"}>Euler v{v}</Branding>
       {children}
       <Spacer />
       <Link disabled={isLoading} to={"/docs"}>
