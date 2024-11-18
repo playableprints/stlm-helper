@@ -53,4 +53,4 @@ jobs:
       # Release artefact via GH releases
       - uses: ncipollo/release-action@v1
         with:
-          artifacts: "euler-*"
+          artifacts: "build/bin/euler-*"
