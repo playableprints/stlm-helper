@@ -13,6 +13,8 @@ jobs:
         # os: [ubuntu-22.04]
     name: Build and release
     runs-on: ${{ matrix.os }}
+    permissions:
+      contents: write
 
     steps:
       # Pull the code
