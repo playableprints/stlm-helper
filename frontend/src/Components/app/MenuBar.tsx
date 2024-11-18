@@ -18,14 +18,14 @@ const Socials = styled((props: HTMLAttributes<HTMLDivElement>) => {
         icon={faDiscord}
         title={"Discord"}
         onClick={() => {
-          BrowserOpenURL("https://discord.gg/QGaxXnuuqE");
+          BrowserOpenURL("https://redirect.orynt3d.com/discord");
         }}
       />
       <IconButton
         icon={faGithub}
-        title={"github.com/hyperrationaltech/stlm-helper"}
+        title={"github.com/playableprints/stlm-helper"}
         onClick={() => {
-          BrowserOpenURL("https://github.com/hyperrationaltech/stlm-helper");
+          BrowserOpenURL("https://github.com/playableprints/stlm-helper");
         }}
       />
     </div>
