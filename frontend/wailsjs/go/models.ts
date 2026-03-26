@@ -1,5 +1,8 @@
 export namespace manifest {
 	
+	
+	
+	
 	export class attrInstance {
 	    key: string;
 	    value: string;
@@ -48,8 +51,6 @@ export namespace manifest {
 		    return a;
 		}
 	}
-	
-	
 	
 	export class modelMetaV5 {
 	    name?: string;
@@ -183,7 +184,6 @@ export namespace manifest {
 		    return a;
 		}
 	}
-	
 	
 	
 

@@ -11,14 +11,14 @@ import (
 
 type Convert3mf struct{}
 
-type status struct {
+type Status struct {
 	Success bool
 	Message string
 }
 
-func (c *Convert3mf) ConvertMany(root string, files []string, outputDir string) map[string]status {
+func (c *Convert3mf) ConvertMany(root string, files []string, outputDir string) map[string]Status {
 
-	result := make(map[string]status)
+	result := make(map[string]Status)
 
 	for _, f := range files {
 		basename := strings.TrimSuffix(f, filepath.Ext(f))
@@ -27,9 +27,9 @@ func (c *Convert3mf) ConvertMany(root string, files []string, outputDir string) 
 
 		lerr := c.Convert(input, output)
 		if lerr != nil {
-			result[f] = status{false, lerr.Error()}
+			result[f] = Status{false, lerr.Error()}
 		} else {
-			result[f] = status{true, "converted successfully"}
+			result[f] = Status{true, "converted successfully"}
 		}
 	}
 	return result

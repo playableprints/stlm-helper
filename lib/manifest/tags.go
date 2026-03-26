@@ -6,7 +6,7 @@ import (
 
 type Tags struct{}
 
-type status struct {
+type Status struct {
 	From string
 	To   string
 	In   string
@@ -25,8 +25,8 @@ func (c *Tags) PreviewReplace(tags []string, match string, replace string) (map[
 	return result, err
 }
 
-func (c *Tags) ReplaceTags(root string, match string, replace string, include []string) ([]status, error) {
-	result := make([]status, 0)
+func (c *Tags) ReplaceTags(root string, match string, replace string, include []string) ([]Status, error) {
+	result := make([]Status, 0)
 	tags, err := c.FindTags(root)
 	if err != nil {
 		return result, err
@@ -65,7 +65,7 @@ func (c *Tags) ReplaceTags(root string, match string, replace string, include []
 				if val != "" {
 					toSetInclude = append(toSetInclude, val)
 				}
-				res := status{t, val, path + ":scancfg.tags.include"}
+				res := Status{t, val, path + ":scancfg.tags.include"}
 				result = append(result, res)
 			} else {
 				toSetInclude = append(toSetInclude, t)
@@ -79,7 +79,7 @@ func (c *Tags) ReplaceTags(root string, match string, replace string, include []
 				if val != "" {
 					toSetTags = append(toSetTags, val)
 				}
-				res := status{t, val, path + ":modelmeta.tags"}
+				res := Status{t, val, path + ":modelmeta.tags"}
 				result = append(result, res)
 			} else {
 				toSetTags = append(toSetTags, t)
