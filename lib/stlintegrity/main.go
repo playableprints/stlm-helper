@@ -9,20 +9,20 @@ import (
 
 type STLIntegrity struct{}
 
-type status struct {
+type Status struct {
 	Success bool
 	Issues  []string
 }
 
-func (e *STLIntegrity) CheckMany(root string, list []string) (map[string]status, error) {
-	result := make(map[string]status)
+func (e *STLIntegrity) CheckMany(root string, list []string) (map[string]Status, error) {
+	result := make(map[string]Status)
 
 	for _, f := range list {
 		s, report, err := e.CheckSTL(filepath.Join(root, f))
 		if err != nil {
 			return nil, err
 		} else {
-			result[f] = status{s, report}
+			result[f] = Status{s, report}
 		}
 	}
 
