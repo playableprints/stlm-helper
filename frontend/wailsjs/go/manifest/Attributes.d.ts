@@ -8,6 +8,6 @@ export function FindAttributeKeys(arg1:string):Promise<Array<string>>;
 
 export function PreviewConvertTagsToAttributes(arg1:Array<string>,arg2:string,arg3:Array<string>):Promise<manifest.AttrConvPreview>;
 
-export function PreviewReplaceKeys(arg1:Array<string>,arg2:string,arg3:string):Promise<{[key: string]: string}>;
+export function PreviewReplaceKeys(arg1:Array<string>,arg2:string,arg3:string):Promise<Record<string, string>>;
 
 export function ReplaceKeys(arg1:string,arg2:string,arg3:string,arg4:Array<string>):Promise<Array<manifest.Status>>;

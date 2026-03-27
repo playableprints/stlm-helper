@@ -4,4 +4,4 @@ import {convert3mf} from '../models';
 
 export function Convert(arg1:string,arg2:string):Promise<void>;
 
-export function ConvertMany(arg1:string,arg2:Array<string>,arg3:string):Promise<{[key: string]: convert3mf.Status}>;
+export function ConvertMany(arg1:string,arg2:Array<string>,arg3:string):Promise<Record<string, convert3mf.status>>;

@@ -4,6 +4,6 @@ import {manifest} from '../models';
 
 export function FindTags(arg1:string):Promise<Array<string>>;
 
-export function PreviewReplace(arg1:Array<string>,arg2:string,arg3:string):Promise<{[key: string]: string}>;
+export function PreviewReplace(arg1:Array<string>,arg2:string,arg3:string):Promise<Record<string, string>>;
 
 export function ReplaceTags(arg1:string,arg2:string,arg3:string,arg4:Array<string>):Promise<Array<manifest.Status>>;
