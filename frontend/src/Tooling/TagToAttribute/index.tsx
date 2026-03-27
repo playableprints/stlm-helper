@@ -223,7 +223,7 @@ const TagToAttribute = () => {
                 notifications.remove(startId);
                 if (changes.length > 0) {
                   changes.forEach((each) => {
-                    logger.success(`found and converted ${each.To} in ${each.In}`);
+                    logger.success(`found and converted ${each.Item} in ${each.In}`);
                   });
                   notifications.confirm(
                     <>
