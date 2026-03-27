@@ -7,23 +7,23 @@ import (
 
 type Attributes struct{}
 
-type attrStatus struct {
+type AttrStatus struct {
 	Item string
 	In   string
 }
-type attr struct {
+type Attr struct {
 	Key string
 	Value string
 }
 
-type attrConvPreview struct {
-	Result []attr
+type AttrConvPreview struct {
+	Result []Attr
 	LeftBehind []string
 }
 
 
-func (c *Attributes) PreviewConvertTagsToAttributes(tags []string, delim string, list []string) (attrConvPreview, error) {
-	result := make([]attr, 0);
+func (c *Attributes) PreviewConvertTagsToAttributes(tags []string, delim string, list []string) (AttrConvPreview, error) {
+	result := make([]Attr, 0);
 	leftBehind := make([]string, 0);
 
 	for _,t := range tags {
@@ -31,18 +31,18 @@ func (c *Attributes) PreviewConvertTagsToAttributes(tags []string, delim string,
 			res := strings.SplitN(t, delim, 2)
 			var k = res[0];
 			var v = res[1];
-			result = append(result, attr{ Key: k, Value: v })
+			result = append(result, Attr{ Key: k, Value: v })
 		} else {
 			leftBehind = append(leftBehind, t);
 		}
 	}
 
-	return attrConvPreview{ Result: result, LeftBehind: leftBehind }, nil
+	return AttrConvPreview{ Result: result, LeftBehind: leftBehind }, nil
 }
 
-func (c *Attributes) ConvertTagsToAttributes(root string, delim string, list []string) ([]attrStatus, error) {
+func (c *Attributes) ConvertTagsToAttributes(root string, delim string, list []string) ([]AttrStatus, error) {
 
-	result := make([]attrStatus, 0)
+	result := make([]AttrStatus, 0)
 
 	manifests, err := GetAllManifests(root)
 	if err != nil {
@@ -59,7 +59,7 @@ func (c *Attributes) ConvertTagsToAttributes(root string, delim string, list []s
 				var k = res[0]
 				var v = res[1]
 				manifest.Scancfg.Attributes.Include = append(manifest.Scancfg.Attributes.Include, attrInstance{Key: k, Value: v})
-				result = append(result, attrStatus{t, path + ":scancfg.attributes.include"})
+				result = append(result, AttrStatus{t, path + ":scancfg.attributes.include"})
 			} else {
 				newScanTags = append(newScanTags, t)
 			}
@@ -70,7 +70,7 @@ func (c *Attributes) ConvertTagsToAttributes(root string, delim string, list []s
 				var k = res[0]
 				var v = res[1]
 				manifest.ModelMeta.Attributes = append(manifest.ModelMeta.Attributes, attrInstance{Key: k, Value: v})
-				result = append(result, attrStatus{t, path + ":modelmeta.attributes"})
+				result = append(result, AttrStatus{t, path + ":modelmeta.attributes"})
 			} else {
 				newUserTags = append(newUserTags, t)
 			}
@@ -120,8 +120,8 @@ func (c *Attributes) PreviewReplaceKeys(attributes []string, match string, repla
 	return result, err
 }
 
-func (c *Attributes) ReplaceKeys(root string, match string, replace string, include []string) ([]status, error) {
-	result := make([]status, 0)
+func (c *Attributes) ReplaceKeys(root string, match string, replace string, include []string) ([]Status, error) {
+	result := make([]Status, 0)
 	keys, err := c.FindAttributeKeys(root)
 	if err != nil {
 		return result, err
@@ -163,7 +163,7 @@ func (c *Attributes) ReplaceKeys(root string, match string, replace string, incl
 						Value: t.Value,
 					})
 				}
-				res := status{t.Key, nKey, path + ":scancfg.attributes.include"}
+				res := Status{t.Key, nKey, path + ":scancfg.attributes.include"}
 				result = append(result, res)
 			} else {
 				toSetInclude = append(toSetInclude, t)
@@ -180,7 +180,7 @@ func (c *Attributes) ReplaceKeys(root string, match string, replace string, incl
 						Value: t.Value,
 					})
 				}
-				res := status{t.Key, nKey, path + ":modelmeta.attributes"}
+				res := Status{t.Key, nKey, path + ":modelmeta.attributes"}
 				result = append(result, res)
 			} else {
 				toSetAttributes = append(toSetAttributes, t)

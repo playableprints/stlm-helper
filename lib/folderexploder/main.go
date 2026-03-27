@@ -11,13 +11,13 @@ import (
 
 type Exploder struct{}
 
-type status struct {
+type Status struct {
 	Success bool
 	Message string
 }
 
-func (e *Exploder) ExplodeList(path string, fileList []string, test string, replace string) map[string]status {
-	retval := make(map[string]status)
+func (e *Exploder) ExplodeList(path string, fileList []string, test string, replace string) map[string]Status {
+	retval := make(map[string]Status)
 	result := e.Prepare(fileList, test, replace)
 
 	for k, flist := range result {
@@ -26,9 +26,9 @@ func (e *Exploder) ExplodeList(path string, fileList []string, test string, repl
 			fmt.Printf("error creating folder %v", k)
 		}
 		for _, fname := range flist {
-			retval[fname] = status{true, ""}
+			retval[fname] = Status{true, ""}
 			if err := os.Rename(filepath.Join(path, fname), filepath.Join(dir, fname)); err != nil {
-				retval[fname] = status{false, err.Error()}
+				retval[fname] = Status{false, err.Error()}
 			}
 		}
 	}
@@ -72,26 +72,26 @@ func (e *Exploder) Prepare(fileList []string, test string, replace string) map[s
 	return result
 }
 
-func (e *Exploder) Explode(path string) map[string]status {
+func (e *Exploder) Explode(path string) map[string]Status {
 	files, err := os.ReadDir(path)
 	if err != nil {
 		fmt.Printf("%v", err.Error())
 	}
 
-	retval := make(map[string]status)
+	retval := make(map[string]Status)
 
 	for _, f := range files {
 		if threedfiles(f) {
 			basename := strings.TrimSuffix(f.Name(), filepath.Ext(f.Name()))
 
-			retval[basename] = status{true, ""}
+			retval[basename] = Status{true, ""}
 
 			if err := os.Mkdir(filepath.Join(path, basename), 0x777); err != nil {
-				retval[basename] = status{false, err.Error()}
+				retval[basename] = Status{false, err.Error()}
 			}
 
 			if err := os.Rename(filepath.Join(path, f.Name()), filepath.Join(path, basename, f.Name())); err != nil {
-				retval[basename] = status{false, err.Error()}
+				retval[basename] = Status{false, err.Error()}
 			}
 		}
 	}
